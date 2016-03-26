@@ -16,25 +16,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Esri.ArcGISRuntime.Geometry;
 
 namespace ArcGISRuntimeWKT.Utilities
 {
     public class Algorithms
     {
-        /// <summary>
-        ///     Gets the euclidean distance between two points.
-        /// </summary>
-        /// <param name="x1">The first point's X coordinate.</param>
-        /// <param name="y1">The first point's Y coordinate.</param>
-        /// <param name="x2">The second point's X coordinate.</param>
-        /// <param name="y2">The second point's Y coordinate.</param>
-        /// <returns></returns>
-        public static double Distance(double x1, double y1, double x2, double y2)
-        {
-            return Math.Sqrt(Math.Pow(x1 - x2, 2.0) + Math.Pow(y1 - y2, 2.0));
-        }
-
         // METHOD IsCCW() IS MODIFIED FROM ANOTHER WORK AND IS ORIGINALLY BASED ON GeoTools.NET:
         /*
 		 *  Copyright (C) 2002 Urban Science Applications, Inc. 
@@ -55,25 +44,35 @@ namespace ArcGISRuntimeWKT.Utilities
 		 *
 		 */
 
+        public static bool IsCcw(ReadOnlySegmentCollection ring)
+        {
+            return IsCcw(ring.GetPoints().ToList());
+        }
+
+        public static bool IsCcw(IEnumerable<MapPoint> ring)
+        {
+            return IsCcw(ring.ToList());
+        }
+
         /// <summary>
         ///     Tests whether a ring is oriented counter-clockwise.
         /// </summary>
         /// <param name="ring">Ring to test.</param>
         /// <returns>Returns true if ring is oriented counter-clockwise.</returns>
-        public static bool IsCcw(PointCollection ring)
+        public static bool IsCcw(List<MapPoint> ring)
         {
-            MapPoint PrevPoint, NextPoint;
-            MapPoint p;
-
             // Check if the ring has enough vertices to be a ring
-            if (ring.Count < 3) throw (new ArgumentException("Invalid LinearRing"));
+            if (ring.Count < 3)
+            {
+                throw new ArgumentException("Invalid LinearRing");
+            }
 
             // find the point with the largest Y coordinate
             var hip = ring[0];
             var hii = 0;
             for (var i = 1; i < ring.Count; i++)
             {
-                p = ring[i];
+                var p = ring[i];
                 if (p.Y > hip.Y)
                 {
                     hip = p;
@@ -82,21 +81,27 @@ namespace ArcGISRuntimeWKT.Utilities
             }
             // Point left to Hip
             var iPrev = hii - 1;
-            if (iPrev < 0) iPrev = ring.Count - 2;
+            if (iPrev < 0)
+            {
+                iPrev = ring.Count - 2;
+            }
             // Point right to Hip
             var iNext = hii + 1;
-            if (iNext >= ring.Count) iNext = 1;
-            PrevPoint = ring[iPrev];
-            NextPoint = ring[iNext];
+            if (iNext >= ring.Count)
+            {
+                iNext = 1;
+            }
+            var prevPoint = ring[iPrev];
+            var nextPoint = ring[iNext];
 
             // translate so that hip is at the origin.
             // This will not affect the area calculation, and will avoid
             // finite-accuracy errors (i.e very small vectors with very large coordinates)
             // This also simplifies the discriminant calculation.
-            var prev2X = PrevPoint.X - hip.X;
-            var prev2Y = PrevPoint.Y - hip.Y;
-            var next2X = NextPoint.X - hip.X;
-            var next2Y = NextPoint.Y - hip.Y;
+            var prev2X = prevPoint.X - hip.X;
+            var prev2Y = prevPoint.Y - hip.Y;
+            var next2X = nextPoint.X - hip.X;
+            var next2Y = nextPoint.Y - hip.Y;
             // compute cross-product of vectors hip->next and hip->prev
             // (e.g. area of parallelogram they enclose)
             var disc = next2X*prev2Y - next2Y*prev2X;
@@ -110,10 +115,10 @@ namespace ArcGISRuntimeWKT.Utilities
             if (disc == 0.0)
             {
                 // poly is CCW if prev x is right of next x
-                return (PrevPoint.X > NextPoint.X);
+                return prevPoint.X > nextPoint.X;
             }
             // if area is positive, points are ordered CCW
-            return (disc > 0.0);
+            return disc > 0.0;
         }
     }
 }
