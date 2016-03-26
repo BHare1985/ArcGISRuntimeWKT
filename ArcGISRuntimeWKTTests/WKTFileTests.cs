@@ -1,25 +1,21 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Security;
 using ArcGISRuntimeWKT.Converters.WellKnownText;
 using Esri.ArcGISRuntime.Geometry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-[assembly: SecurityTransparent]
-
 namespace ArcGISRuntimeWKTTests
 {
     [TestClass]
-    public class WktFileTests
+    public class WktFileTests : EsriBaseTest
     {
-        [SecuritySafeCritical]
         [TestMethod]
         public void TestWkTfiles()
         {
             var assembly = Assembly.GetExecutingAssembly();
 
-            var root = "UnitTestsSL.wktsForTesting.";
+            var root = "ArcGISRuntimeWKTTests.wktsForTesting.";
             string[] paths =
             {
                 root + @"DataDoors187_aoi_wktOutputFile.txt",

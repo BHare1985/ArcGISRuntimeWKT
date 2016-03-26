@@ -101,32 +101,34 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
             // Get the type of this geometry.
             var type = ReadUInt32(reader, (WkbByteOrder) byteOrder);
 
-            switch ((WKBGeometryType) type)
+            switch ((WkbGeometryType) type)
             {
-                case WKBGeometryType.wkbPoint:
+                case WkbGeometryType.WkbPoint:
                     return CreateWkbPoint(reader, (WkbByteOrder) byteOrder);
 
-                case WKBGeometryType.wkbLineString:
+                case WkbGeometryType.WkbLineString:
                     return CreateWkbLineString(reader, (WkbByteOrder) byteOrder);
 
-                case WKBGeometryType.wkbPolygon:
+                case WkbGeometryType.WkbPolygon:
                     return CreateWkbPolygon(reader, (WkbByteOrder) byteOrder);
 
-                case WKBGeometryType.wkbMultiPoint:
-                    return CreateWkbMultiPoint(reader, (WkbByteOrder) byteOrder);
+                case WkbGeometryType.WkbMultiPoint:
+                    throw new NotImplementedException();
 
-                case WKBGeometryType.wkbMultiLineString:
+                case WkbGeometryType.WkbMultiLineString:
                     return CreateWkbMultiLineString(reader, (WkbByteOrder) byteOrder);
 
-                case WKBGeometryType.wkbMultiPolygon:
+                case WkbGeometryType.WkbMultiPolygon:
                     return CreateWkbMultiPolygon(reader, (WkbByteOrder) byteOrder);
 
                 //case WKBGeometryType.wkbGeometryCollection:
                 //    return CreateWKBGeometryCollection(reader, (WkbByteOrder) byteOrder);
 
                 default:
-                    if (!Enum.IsDefined(typeof (WKBGeometryType), type))
+                    if (!Enum.IsDefined(typeof (WkbGeometryType), type))
+                    {
                         throw new ArgumentException("Geometry type not recognized");
+                    }
                     throw new NotSupportedException("Geometry type '" + type + "' not supported");
             }
         }
@@ -156,26 +158,24 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
 
         private static Polyline CreateWkbLineString(BinaryReader reader, WkbByteOrder byteOrder)
         {
-            var l = new Polyline();
-            var pc = new PointCollection();
             var arrPoint = ReadCoordinates(reader, byteOrder);
-            foreach (var t in arrPoint) pc.Add(t);
-            l.Paths.Add(pc);
-            return l;
+            return new Polyline(arrPoint);
         }
 
         private static PointCollection CreateWkbLinearRing(BinaryReader reader, WkbByteOrder byteOrder)
         {
             var l = new PointCollection();
-            //l.Vertices.AddRange(ReadCoordinates(reader, byteOrder));
-            var arrPoint = ReadCoordinates(reader, byteOrder);
-            for (var i = 0; i < arrPoint.Length; i++)
-                l.Add(arrPoint[i]);
+            foreach (var mapPoint in ReadCoordinates(reader, byteOrder))
+            {
+                l.Add(mapPoint);
+            }
 
             //if polygon isn't closed, add the first point to the end (this shouldn't occur for correct WKB data)
-            if (l[0].X != l[l.Count - 1].X ||
-                l[0].Y != l[l.Count - 1].Y)
+            if (Math.Abs(l[0].X - l[l.Count - 1].X) > 0.0 ||
+                Math.Abs(l[0].Y - l[l.Count - 1].Y) > 0.0)
+            {
                 l.Add(new MapPoint(l[0].X, l[0].Y));
+            }
             return l;
         }
 
@@ -186,38 +186,15 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
 
             Debug.Assert(numRings >= 1, "Number of rings in polygon must be 1 or more.");
 
-            var shell = new Polygon();
-            shell.Rings.Add(CreateWkbLinearRing(reader, byteOrder));
+            var polygonBuilder = new PolygonBuilder(CreateWkbLinearRing(reader, byteOrder));
 
             // Create a new array of linearrings for the interior rings.
-            for (var i = 0; i < (numRings - 1); i++)
-                shell.Rings.Add(CreateWkbLinearRing(reader, byteOrder));
-
-            // Create and return the Poylgon.
-            return shell;
-        }
-
-        private static MultiPoint CreateWkbMultiPoint(BinaryReader reader, WkbByteOrder byteOrder)
-        {
-            // Get the number of points in this multipoint.
-            var numPoints = (int) ReadUInt32(reader, byteOrder);
-
-            // Create a new array for the points.
-            MultiPoint points = new MultiPoint();
-
-            // Loop on the number of points.
-            for (var i = 0; i < numPoints; i++)
+            for (var i = 0; i < numRings - 1; i++)
             {
-                // Read point header
-                reader.ReadByte();
-                ReadUInt32(reader, byteOrder);
-
-                // TODO: Validate type
-
-                // Create the next point and add it to the point array.
-                points.Points.Add(CreateWkbPoint(reader, byteOrder));
+                polygonBuilder.AddPart(CreateWkbLinearRing(reader, byteOrder));
             }
-            return points;
+            // Create and return the Poylgon.
+            return polygonBuilder.ToGeometry();
         }
 
         private static Polyline CreateWkbMultiLineString(BinaryReader reader, WkbByteOrder byteOrder)
@@ -225,23 +202,29 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
             // Get the number of linestrings in this multilinestring.
             var numLineStrings = (int) ReadUInt32(reader, byteOrder);
 
-            // Create a new array for the linestrings .
-            var mline = new Polyline();
+            if (numLineStrings < 1)
+            {
+                throw new Exception("Could not create linestring");
+            }
+
+            // Read linestring header
+            reader.ReadByte();
+            ReadUInt32(reader, byteOrder);
+
+            var mline = new PolylineBuilder(CreateWkbLineString(reader, byteOrder));
 
             // Loop on the number of linestrings.
-            for (var i = 0; i < numLineStrings; i++)
+            for (var i = 1; i < numLineStrings; i++)
             {
                 // Read linestring header
                 reader.ReadByte();
                 ReadUInt32(reader, byteOrder);
 
-                // Create the next linestring and add it to the array.
-                foreach (var path in CreateWkbLineString(reader, byteOrder).Paths)
-                    mline.Paths.Add(path);
+                mline.AddParts(CreateWkbLineString(reader, byteOrder).Parts);
             }
 
             // Create and return the MultiLineString.
-            return mline;
+            return mline.ToGeometry();
         }
 
         private static Polygon CreateWkbMultiPolygon(BinaryReader reader, WkbByteOrder byteOrder)
@@ -249,11 +232,22 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
             // Get the number of Polygons.
             var numPolygons = (int) ReadUInt32(reader, byteOrder);
 
+
+            if (numPolygons < 1)
+            {
+                throw new Exception("Could not create MultiPolygon");
+            }
+
+            // Read linestring header
+            reader.ReadByte();
+            ReadUInt32(reader, byteOrder);
+
+
             // Create a new array for the Polygons.
-            var polygons = new Polygon();
+            var polygons = new PolygonBuilder(CreateWkbPolygon(reader, byteOrder));
 
             // Loop on the number of polygons.
-            for (var i = 0; i < numPolygons; i++)
+            for (var i = 1; i < numPolygons; i++)
             {
                 // read polygon header
                 reader.ReadByte();
@@ -261,32 +255,11 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
 
                 // TODO: Validate type
 
-                // Create the next polygon and add it to the array.
-                foreach (var ring in CreateWkbPolygon(reader, byteOrder).Rings)
-                    polygons.Rings.Add(ring);
+                polygons.AddParts(CreateWkbPolygon(reader, byteOrder).Parts);
             }
 
             //Create and return the MultiPolygon.
-            return polygons;
-        }
-
-        private static GeometryCollection CreateWkbGeometryCollection(BinaryReader reader, WkbByteOrder byteOrder)
-        {
-            // The next byte in the array tells the number of geometries in this collection.
-            var numGeometries = (int) ReadUInt32(reader, byteOrder);
-
-            // Create a new array for the geometries.
-            var geometries = new GeometryCollection();
-
-            // Loop on the number of geometries.
-            for (var i = 0; i < numGeometries; i++)
-            {
-                // Call the main create function with the next geometry.
-                geometries.Add(Parse(reader));
-            }
-
-            // Create and return the next geometry.
-            return geometries;
+            return polygons.ToGeometry();
         }
 
         private static uint ReadUInt32(BinaryReader reader, WkbByteOrder byteOrder)
@@ -298,7 +271,9 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
                 return BitConverter.ToUInt32(bytes, 0);
             }
             if (byteOrder == WkbByteOrder.Ndr)
+            {
                 return reader.ReadUInt32();
+            }
             throw new ArgumentException("Byte order not recognized");
         }
 
@@ -311,7 +286,9 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
                 return BitConverter.ToDouble(bytes, 0);
             }
             if (byteOrder == WkbByteOrder.Ndr)
+            {
                 return reader.ReadDouble();
+            }
             throw new ArgumentException("Byte order not recognized");
         }
     }

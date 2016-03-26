@@ -39,6 +39,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using ArcGISRuntimeWKT.Utilities;
 using Esri.ArcGISRuntime.Geometry;
 
@@ -125,29 +126,41 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         private static void AppendGeometryTaggedText(Geometry geometry, StringWriter writer)
         {
             if (geometry == null)
+            {
                 throw new NullReferenceException("Cannot write Well-Known Text: geometry was null");
+            }
 
             if (geometry is MapPoint)
             {
-                var point = geometry as MapPoint;
+                var point = (MapPoint) geometry;
                 AppendPointTaggedText(point, writer);
             }
-            else if (geometry is Polyline && ((Polyline) geometry).Paths.Where(Algorithms.IsCCW).Count() == 1)
-                AppendLineStringTaggedText(geometry as Polyline, writer);
+            else if (geometry is Polyline && ((Polyline) geometry).Parts.GetPartsAsPoints().Count(Algorithms.IsCcw) == 1)
+            {
+                AppendLineStringTaggedText((Polyline) geometry, writer);
+            }
             else if (geometry is Envelope)
-                AppendEnvelope(geometry as Envelope, writer);
+            {
+                AppendEnvelope((Envelope) geometry, writer);
+            }
             else if (geometry is Polygon && OnlyOneExteriorRing((Polygon) geometry))
-                AppendPolygonTaggedText(geometry as Polygon, writer);
-            else if (geometry is MultiPoint)
-                AppendMultiPointTaggedText(geometry as MultiPoint, writer);
+            {
+                AppendPolygonTaggedText((Polygon) geometry, writer);
+            }
             else if (geometry is Polyline)
-                AppendMultiLineStringTaggedText(geometry as Polyline, writer);
+            {
+                AppendMultiLineStringTaggedText((Polyline) geometry, writer);
+            }
             else if (geometry is Polygon)
-                AppendMultiPolygonTaggedText(geometry as Polygon, writer);
+            {
+                AppendMultiPolygonTaggedText((Polygon) geometry, writer);
+            }
             //else if (geometry is GeometryCollection)
             //	AppendGeometryCollectionTaggedText(geometry as List<Geometry>, writer);
             else
+            {
                 throw new NotSupportedException("Unsupported Geometry implementation:" + geometry.GetType().Name);
+            }
         }
 
         /// <summary>
@@ -158,15 +171,17 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         private static bool OnlyOneExteriorRing(Polygon polygon)
         {
             var exteriorCcw = false;
-            if (polygon.Rings.Count > 0)
+            if (polygon.Parts.Count > 0)
             {
-                exteriorCcw = Algorithms.IsCCW(polygon.Rings[0]);
+                exteriorCcw = Algorithms.IsCcw(polygon.Parts[0]);
             }
             var count = 0;
-            foreach (PointCollection ring in polygon.Rings)
+            foreach (var ring in polygon.Parts)
             {
-                if (Algorithms.IsCCW(ring) == exteriorCcw)
+                if (Algorithms.IsCcw(ring) == exteriorCcw)
+                {
                     count++;
+                }
             }
 
             return count == 1;
@@ -199,7 +214,7 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         private static void AppendLineStringTaggedText(Polyline lineString, StringWriter writer)
         {
             writer.Write("LINESTRING ");
-            AppendLineStringText(lineString.Paths[0], writer);
+            AppendLineStringText(lineString.Parts[0].GetPoints().ToList(), writer);
         }
 
         /// <summary>
@@ -212,18 +227,6 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         {
             writer.Write("POLYGON ");
             AppendPolygonText(polygon, writer);
-        }
-
-        /// <summary>
-        ///     Converts a MultiPoint to &lt;MultiPoint Tagged Text&gt;
-        ///     format, then Appends it to the writer.
-        /// </summary>
-        /// <param name="multipoint">The MultiPoint to process.</param>
-        /// <param name="writer">The output writer to Append to.</param>
-        private static void AppendMultiPointTaggedText(MultiPoint multipoint, StringWriter writer)
-        {
-            writer.Write("MULTIPOINT ");
-            AppendMultiPointText(multipoint, writer);
         }
 
         /// <summary>
@@ -250,19 +253,6 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
             AppendMultiPolygonText(multiPolygon, writer);
         }
 
-        /// <summary>
-        ///     Converts a GeometryCollection to &lt;GeometryCollection Tagged
-        ///     Text&gt; format, then Appends it to the writer.
-        /// </summary>
-        /// <param name="geometryCollection">The GeometryCollection to process</param>
-        /// <param name="writer">The output stream writer to Append to.</param>
-        private static void AppendGeometryCollectionTaggedText(List<Geometry> geometryCollection,
-            StringWriter writer)
-        {
-            writer.Write("GEOMETRYCOLLECTION ");
-            AppendGeometryCollectionText(geometryCollection, writer);
-        }
-
 
         /// <summary>
         ///     Converts a Coordinate to Point Text format then Appends it to the writer.
@@ -272,7 +262,9 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         private static void AppendPointText(MapPoint coordinate, StringWriter writer)
         {
             if (coordinate == null)
+            {
                 writer.Write("EMPTY");
+            }
             else
             {
                 writer.Write("(");
@@ -309,17 +301,21 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         /// </summary>
         /// <param name="lineString">The LineString to process.</param>
         /// <param name="writer">The output stream to Append to.</param>
-        private static void AppendLineStringText(PointCollection lineString, StringWriter writer)
+        private static void AppendLineStringText(IReadOnlyList<MapPoint> lineString, StringWriter writer)
         {
             if (lineString == null || lineString.Count == 0)
+            {
                 writer.Write("EMPTY");
+            }
             else
             {
                 writer.Write("(");
                 for (var i = 0; i < lineString.Count; i++)
                 {
                     if (i > 0)
+                    {
                         writer.Write(", ");
+                    }
                     AppendCoordinate(lineString[i], writer);
                 }
                 writer.Write(")");
@@ -334,39 +330,18 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         /// <param name="writer"></param>
         private static void AppendPolygonText(Polygon polygon, StringWriter writer)
         {
-            if (polygon == null || polygon.Rings.Count == 0)
+            if (polygon == null || polygon.Parts.Count == 0)
+            {
                 writer.Write("EMPTY");
+            }
             else
             {
                 writer.Write("(");
-                AppendLineStringText(polygon.Rings[0], writer); //ExteriorRing
-                for (var i = 1; i < polygon.Rings.Count; i++)
+                AppendLineStringText(polygon.Parts[0].GetPoints().ToList(), writer); //ExteriorRing
+                for (var i = 1; i < polygon.Parts.Count; i++)
                 {
                     writer.Write(", ");
-                    AppendLineStringText(polygon.Rings[i], writer); //InteriorRings
-                }
-                writer.Write(")");
-            }
-        }
-
-        /// <summary>
-        ///     Converts a MultiPoint to &lt;MultiPoint Text&gt; format, then
-        ///     Appends it to the writer.
-        /// </summary>
-        /// <param name="multiPoint">The MultiPoint to process.</param>
-        /// <param name="writer">The output stream writer to Append to.</param>
-        private static void AppendMultiPointText(MultiPoint multiPoint, StringWriter writer)
-        {
-            if (multiPoint == null || multiPoint.Points.Count == 0)
-                writer.Write("EMPTY");
-            else
-            {
-                writer.Write("(");
-                for (var i = 0; i < multiPoint.Points.Count; i++)
-                {
-                    if (i > 0)
-                        writer.Write(", ");
-                    AppendCoordinate(multiPoint.Points[i], writer);
+                    AppendLineStringText(polygon.Parts[i].GetPoints().ToList(), writer); //InteriorRings
                 }
                 writer.Write(")");
             }
@@ -380,16 +355,20 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         /// <param name="writer">The output stream writer to Append to.</param>
         private static void AppendMultiLineStringText(Polyline multiLineString, StringWriter writer)
         {
-            if (multiLineString == null || multiLineString.Paths.Count == 0)
+            if (multiLineString == null || multiLineString.Parts.Count == 0)
+            {
                 writer.Write("EMPTY");
+            }
             else
             {
                 writer.Write("(");
-                for (var i = 0; i < multiLineString.Paths.Count; i++)
+                for (var i = 0; i < multiLineString.Parts.Count; i++)
                 {
                     if (i > 0)
+                    {
                         writer.Write(", ");
-                    AppendLineStringText(multiLineString.Paths[i], writer);
+                    }
+                    AppendLineStringText(multiLineString.Parts[i].GetPoints().ToList(), writer);
                 }
                 writer.Write(")");
             }
@@ -402,56 +381,42 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         /// <param name="writer">The output stream to Append to.</param>
         private static void AppendMultiPolygonText(Polygon multiPolygon, StringWriter writer)
         {
-            if (multiPolygon == null || multiPolygon.Rings.Count == 0)
+            if (multiPolygon == null || multiPolygon.Parts.Count == 0)
+            {
                 writer.Write("EMPTY");
+            }
             else
             {
                 writer.Write("(");
 
                 var outerRing = true;
-                if (multiPolygon.Rings.Count > 0)
+                if (multiPolygon.Parts.Count > 0)
                 {
-                    outerRing = Algorithms.IsCCW(multiPolygon.Rings[0]);
+                    outerRing = Algorithms.IsCcw(multiPolygon.Parts[0]);
                 }
-                for (var i = 0; i < multiPolygon.Rings.Count; i++)
+                for (var i = 0; i < multiPolygon.Parts.Count; i++)
                 {
-                    if (i > 0) writer.Write(", ");
+                    if (i > 0)
+                    {
+                        writer.Write(", ");
+                    }
 
-                    var singlePolygon = new Polygon();
-                    singlePolygon.Rings.Add(multiPolygon.Rings[i]); // Add the outer ring
+                    var singlePolygon = new PolygonBuilder(multiPolygon.Parts[i]);
 
                     //Add any interior rings
-                    for (var j = i + 1; j < multiPolygon.Rings.Count; j++)
+                    for (var j = i + 1; j < multiPolygon.Parts.Count; j++)
                     {
                         // It is an interior ring if the clockwise direction is opposite of the first ring
-                        if (Algorithms.IsCCW(multiPolygon.Rings[j]) == outerRing) break;
-                        singlePolygon.Rings.Add(multiPolygon.Rings[j]);
+                        if (Algorithms.IsCcw(multiPolygon.Parts[j]) == outerRing)
+                        {
+                            break;
+                        }
+
+                        singlePolygon.AddPart(multiPolygon.Parts[j]);
                         i++;
                     }
 
-                    AppendPolygonText(singlePolygon, writer);
-                }
-                writer.Write(")");
-            }
-        }
-
-        /// <summary>
-        ///     Converts a GeometryCollection to &lt;GeometryCollection Text &gt; format, then Appends it to the writer.
-        /// </summary>
-        /// <param name="geometryCollection">The GeometryCollection to process.</param>
-        /// <param name="writer">The output stream writer to Append to.</param>
-        private static void AppendGeometryCollectionText(List<Geometry> geometryCollection, StringWriter writer)
-        {
-            if (geometryCollection == null || geometryCollection.Count == 0)
-                writer.Write("EMPTY");
-            else
-            {
-                writer.Write("(");
-                for (var i = 0; i < geometryCollection.Count; i++)
-                {
-                    if (i > 0)
-                        writer.Write(", ");
-                    AppendGeometryTaggedText(geometryCollection[i], writer);
+                    AppendPolygonText(singlePolygon.ToGeometry(), writer);
                 }
                 writer.Write(")");
             }

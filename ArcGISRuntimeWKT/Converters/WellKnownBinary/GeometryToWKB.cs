@@ -37,26 +37,27 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ArcGISRuntimeWKT.Utilities;
 using Esri.ArcGISRuntime.Geometry;
 
 namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
 {
     /// <summary>
-    ///     Converts a <see cref="Esri.ArcGISRuntime.Geometry" /> instance to a Well-known Binary string representation.
+    ///     Converts a <see cref="Geometry" /> instance to a Well-known Binary string representation.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         The Well-known Binary Representation for <see cref="Esri.ArcGISRuntime.Geometry" /> (WKBGeometry) provides a
-    ///         portable
-    ///         representation of a <see cref="Esri.ArcGISRuntime.Geometry" /> value as a contiguous stream of bytes. It
-    ///         permits <see cref="Esri.ArcGISRuntime.Geometry" />
+    ///         The Well-known Binary Representation for <see cref="Geometry" /> (WKBGeometry) provides a portable
+    ///         representation of a <see cref="Geometry" /> value as a contiguous stream of bytes. It permits
+    ///         <see cref="Geometry" />
     ///         values to be exchanged between an ODBC client and an SQL database in binary form.
     ///     </para>
     ///     <para>
-    ///         The Well-known Binary Representation for <see cref="Esri.ArcGISRuntime.Geometry" /> is obtained by serializing
-    ///         a <see cref="Esri.ArcGISRuntime.Geometry" />
+    ///         The Well-known Binary Representation for <see cref="Geometry" /> is obtained by serializing a
+    ///         <see cref="Geometry" />
     ///         instance as a sequence of numeric types drawn from the set {Unsigned Integer, Double} and
     ///         then serializing each numeric type as a sequence of bytes using one of two well defined,
     ///         standard, binary representations for numeric types (NDR, XDR). The specific binary encoding
@@ -117,7 +118,9 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
                 writer.Write(BitConverter.ToUInt32(bytes, 0));
             }
             else
+            {
                 writer.Write(value);
+            }
         }
 
         /// <summary>
@@ -135,7 +138,9 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
                 writer.Write(BitConverter.ToDouble(bytes, 0));
             }
             else
+            {
                 writer.Write(value);
+            }
         }
 
         #region Methods
@@ -153,31 +158,31 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
             {
                 //Points are type 1.
                 case "SharpMap.Geometries.Point":
-                    WriteUInt32((uint) WKBGeometryType.wkbPoint, bWriter, byteorder);
+                    WriteUInt32((uint) WkbGeometryType.WkbPoint, bWriter, byteorder);
                     break;
                 //Linestrings are type 2.
                 case "SharpMap.Geometries.LineString":
-                    WriteUInt32((uint) WKBGeometryType.wkbLineString, bWriter, byteorder);
+                    WriteUInt32((uint) WkbGeometryType.WkbLineString, bWriter, byteorder);
                     break;
                 //Polygons are type 3.
                 case "SharpMap.Geometries.Polygon":
-                    WriteUInt32((uint) WKBGeometryType.wkbPolygon, bWriter, byteorder);
+                    WriteUInt32((uint) WkbGeometryType.WkbPolygon, bWriter, byteorder);
                     break;
                 //Mulitpoints are type 4.
                 case "SharpMap.Geometries.MultiPoint":
-                    WriteUInt32((uint) WKBGeometryType.wkbMultiPoint, bWriter, byteorder);
+                    WriteUInt32((uint) WkbGeometryType.WkbMultiPoint, bWriter, byteorder);
                     break;
                 //Multilinestrings are type 5.
                 case "SharpMap.Geometries.MultiLineString":
-                    WriteUInt32((uint) WKBGeometryType.wkbMultiLineString, bWriter, byteorder);
+                    WriteUInt32((uint) WkbGeometryType.WkbMultiLineString, bWriter, byteorder);
                     break;
                 //Multipolygons are type 6.
                 case "SharpMap.Geometries.MultiPolygon":
-                    WriteUInt32((uint) WKBGeometryType.wkbMultiPolygon, bWriter, byteorder);
+                    WriteUInt32((uint) WkbGeometryType.WkbMultiPolygon, bWriter, byteorder);
                     break;
                 //Geometrycollections are type 7.
-                case "Esri.ArcGISRuntime.GeometryCollection":
-                    WriteUInt32((uint) WKBGeometryType.wkbGeometryCollection, bWriter, byteorder);
+                case "ESRI.ArcGIS.Client.GeometryCollection":
+                    WriteUInt32((uint) WkbGeometryType.WkbGeometryCollection, bWriter, byteorder);
                     break;
                 //If the type is not of the above 7 throw an exception.
                 default:
@@ -201,15 +206,14 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
                     break;
                 case "SharpMap.Geometries.LineString":
                     var ls = (Polyline) geometry;
-                    WriteLineString(ls.Paths[0], bWriter, byteorder);
+                    WriteLineString(ls.Parts[0].GetPoints(), bWriter, byteorder);
                     break;
                 case "SharpMap.Geometries.Polygon":
                     WriteMultiPolygon((Polygon) geometry, bWriter, byteorder);
                     break;
                 //Write the Multipoint.
                 case "SharpMap.Geometries.MultiPoint":
-                    WriteMultiPoint((MultiPoint) geometry, bWriter, byteorder);
-                    break;
+                    throw new NotImplementedException();
                 //Write the Multilinestring.
                 case "SharpMap.Geometries.MultiLineString":
                     WriteMultiLineString((Polyline) geometry, bWriter, byteorder);
@@ -219,7 +223,7 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
                     WriteMultiPolygon((Polygon) geometry, bWriter, byteorder);
                     break;
                 //Write the Geometrycollection.
-                //case "Esri.ArcGISRuntime.GeometryCollection":
+                //case "ESRI.ArcGIS.Client.GeometryCollection":
                 //    WriteGeometryCollection((GeometryCollection) geometry, bWriter, byteorder);
                 //    break;
                 //If the type is not of the above 7 throw an exception.
@@ -249,14 +253,16 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
         /// <param name="ls">The linestring to be written.</param>
         /// <param name="bWriter">Stream to write to.</param>
         /// <param name="byteorder">Byte order</param>
-        private static void WriteLineString(PointCollection ls, BinaryWriter bWriter, WkbByteOrder byteorder)
+        private static void WriteLineString(IEnumerable<MapPoint> ls, BinaryWriter bWriter, WkbByteOrder byteorder)
         {
             //Write the number of points in this linestring.
-            WriteUInt32((uint) ls.Count, bWriter, byteorder);
+            WriteUInt32((uint) ls.Count(), bWriter, byteorder);
 
             //Loop on each vertices.
             foreach (var p in ls)
+            {
                 WritePoint(p, bWriter, byteorder);
+            }
         }
 
 
@@ -269,36 +275,16 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
         private static void WritePolygon(Polygon poly, BinaryWriter bWriter, WkbByteOrder byteorder)
         {
             //Get the number of rings in this polygon.
-            int numRings = poly.Rings.Count;
+            var numRings = poly.Parts.Count;
 
             //Write the number of rings to the stream (add one for the shell)
             WriteUInt32((uint) numRings, bWriter, byteorder);
 
             //Loop on the number of rings - agnostic of whether its the shell.
-            foreach (PointCollection pc in poly.Rings)
-                //Write the (lineString)LinearRing.
-                WriteLineString(pc, bWriter, byteorder);
-        }
-
-        /// <summary>
-        ///     Writes a multipoint.
-        /// </summary>
-        /// <param name="mp">The multipoint to be written.</param>
-        /// <param name="bWriter">Stream to write to.</param>
-        /// <param name="byteorder">Byte order</param>
-        private static void WriteMultiPoint(MultiPoint mp, BinaryWriter bWriter, WkbByteOrder byteorder)
-        {
-            //Write the number of points.
-            WriteUInt32((uint) mp.Points.Count, bWriter, byteorder);
-
-            //Loop on the number of points.
-            foreach (MapPoint p in mp.Points)
+            foreach (var pc in poly.Parts)
             {
-                //Write Points Header
-                bWriter.Write((byte) byteorder);
-                WriteUInt32((uint) WKBGeometryType.wkbPoint, bWriter, byteorder);
-                //Write each point.
-                WritePoint(p, bWriter, byteorder);
+                //Write the (lineString)LinearRing.
+                WriteLineString(pc.GetPoints(), bWriter, byteorder);
             }
         }
 
@@ -311,14 +297,14 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
         private static void WriteMultiLineString(Polyline mls, BinaryWriter bWriter, WkbByteOrder byteorder)
         {
             //Write the number of linestrings.
-            WriteUInt32((uint) mls.Paths.Count, bWriter, byteorder);
+            WriteUInt32((uint) mls.Parts.Count, bWriter, byteorder);
 
             //Loop on the number of linestrings.
-            foreach (PointCollection ls in mls.Paths)
+            foreach (var ls in mls.Parts.GetPartsAsPoints())
             {
                 //Write LineString Header
                 bWriter.Write((byte) byteorder);
-                WriteUInt32((uint) WKBGeometryType.wkbLineString, bWriter, byteorder);
+                WriteUInt32((uint) WkbGeometryType.WkbLineString, bWriter, byteorder);
                 //Write each linestring.
                 WriteLineString(ls, bWriter, byteorder);
             }
@@ -333,54 +319,29 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
         private static void WriteMultiPolygon(Polygon mp, BinaryWriter bWriter, WkbByteOrder byteorder)
         {
             //Write the number of polygons.
-            WriteUInt32((uint) mp.Rings.Count, bWriter, byteorder);
+            WriteUInt32((uint) mp.Parts.Count, bWriter, byteorder);
 
             //Loop on the number of polygons.
-            for (var i = 0; i < mp.Rings.Count; i++)
+            for (var i = 0; i < mp.Parts.Count; i++)
             {
-                PointCollection poly = mp.Rings[i];
+                var poly = mp.Parts[i];
 
                 //create a polygon and remember its orientation
-                var singlePolygon = new Polygon();
-                var exteriorRingOrientation = Algorithms.IsCCW(poly);
-                singlePolygon.Rings.Add(mp.Rings[i]); // Add the outer ring
+                var singlePolygon = new PolygonBuilder(poly);
+
+                var exteriorRingOrientation = Algorithms.IsCcw(poly);
 
                 //Add any interior rings
-                while (++i < mp.Rings.Count && Algorithms.IsCCW(mp.Rings[i]) != exteriorRingOrientation)
-                    singlePolygon.Rings.Add(mp.Rings[i]);
+                while (++i < mp.Parts.Count && Algorithms.IsCcw(mp.Parts[i]) != exteriorRingOrientation)
+                {
+                    singlePolygon.AddPart(mp.Parts[i]);
+                }
 
                 //Write polygon header
                 bWriter.Write((byte) byteorder);
-                WriteUInt32((uint) WKBGeometryType.wkbPolygon, bWriter, byteorder);
+                WriteUInt32((uint) WkbGeometryType.WkbPolygon, bWriter, byteorder);
                 //Write each polygon.
-                WritePolygon(singlePolygon, bWriter, byteorder);
-            }
-        }
-
-
-        /// <summary>
-        ///     Writes a geometrycollection.
-        /// </summary>
-        /// <param name="gc">The geometrycollection to be written.</param>
-        /// <param name="bWriter">Stream to write to.</param>
-        /// <param name="byteorder">Byte order</param>
-        private static void WriteGeometryCollection(GeometryCollection gc, BinaryWriter bWriter, WkbByteOrder byteorder)
-        {
-            //Get the number of geometries in this geometrycollection.
-            var numGeometries = gc.Count;
-
-            //Write the number of geometries.
-            WriteUInt32((uint) numGeometries, bWriter, byteorder);
-
-            //Loop on the number of geometries.
-            for (var i = 0; i < numGeometries; i++)
-            {
-                //Write the byte-order format of the following geometry.
-                bWriter.Write((byte) byteorder);
-                //Write the type of each geometry.
-                WriteType(gc[i], bWriter, byteorder);
-                //Write each geometry.
-                WriteGeometry(gc[i], bWriter, byteorder);
+                WritePolygon(singlePolygon.ToGeometry(), bWriter, byteorder);
             }
         }
 

@@ -113,7 +113,9 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         {
             //AUTHORITY["EPGS","9102"]]
             if (GetStringValue() != "AUTHORITY")
+            {
                 ReadToken("AUTHORITY");
+            }
             ReadToken("[");
             authority = ReadDoubleQuotedWord();
             ReadToken(",");

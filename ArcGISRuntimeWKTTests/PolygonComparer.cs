@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Esri.ArcGISRuntime.Geometry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -7,8 +9,81 @@ namespace ArcGISRuntimeWKTTests
 {
     public class PolygonComparer
     {
+        private static bool DeepEquals(object obj1, object obj2)
+        {
+            if (obj1 == null || obj2 == null)
+            {
+                return obj1 == null && obj2 == null;
+            }
+
+            if (obj1.GetType() != obj2.GetType())
+            {
+                return false;
+            }
+
+            var type = obj1.GetType();
+            if (type.IsPrimitive || typeof (string) == type)
+            {
+                return obj1.Equals(obj2);
+            }
+            if (type.IsArray)
+            {
+                var first = obj1 as Array;
+                var second = obj2 as Array;
+                var en = first.GetEnumerator();
+                var i = 0;
+                while (en.MoveNext())
+                {
+                    if (!DeepEquals(en.Current, second.GetValue(i)))
+                    {
+                        return false;
+                    }
+                    i++;
+                }
+            }
+            else
+            {
+                foreach (
+                    var pi in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public))
+                {
+                    if (pi.Name == "Extent" || pi.Name == "Capacity")
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        var expected = pi.GetValue(obj1);
+                        var actual = pi.GetValue(obj2);
+
+                        if (!DeepEquals(expected, actual))
+                        {
+                            return false;
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+                foreach (var fi in type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public))
+                {
+                    var expected = fi.GetValue(obj1);
+                    var actual = fi.GetValue(obj2);
+                    if (!DeepEquals(expected, actual))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+
         public static int Compare(MapPoint mp1, MapPoint mp2)
         {
+            Assert.IsTrue(DeepEquals(mp1, mp2));
+
+
             Assert.AreEqual(mp1.X, mp2.X);
             Assert.AreEqual(mp1.Y, mp2.Y);
 
@@ -17,16 +92,16 @@ namespace ArcGISRuntimeWKTTests
 
         public static int Compare(Polygon poly1, Polygon poly2)
         {
-            var isTheSame = poly1.Equals(poly2);
+            Assert.IsTrue(DeepEquals(poly1, poly2));
+
             var poly1X = new List<double>();
             var poly1Y = new List<double>();
             var poly2X = new List<double>();
             var poly2Y = new List<double>();
-            isTheSame = poly1.Equals(poly2);
-            for (var i = 0; i < poly1.Rings.Count; i++)
+            for (var i = 0; i < poly1.Parts.Count; i++)
             {
-                PointCollection pt1 = poly1.Rings[i];
-                PointCollection pt2 = poly2.Rings[i];
+                var pt1 = poly1.Parts[i].GetPoints().ToList();
+                var pt2 = poly2.Parts[i].GetPoints().ToList();
                 for (var j = 0; j < pt1.Count; j++)
                 {
                     PopulatePointLists(poly1X, poly1Y, poly2X, poly2Y, pt1, pt2, j);
@@ -36,34 +111,20 @@ namespace ArcGISRuntimeWKTTests
             return ComparePointLists(poly1X, poly1Y, poly2X, poly2Y);
         }
 
-        public static int Compare(MultiPoint mp1, MultiPoint mp2)
-        {
-            var poly1X = new List<double>();
-            var poly1Y = new List<double>();
-            var poly2X = new List<double>();
-            var poly2Y = new List<double>();
-
-            PointCollection pt1 = mp1.Points;
-            PointCollection pt2 = mp2.Points;
-            for (var j = 0; j < pt1.Count; j++)
-            {
-                PopulatePointLists(poly1X, poly1Y, poly2X, poly2Y, pt1, pt2, j);
-            }
-
-            return ComparePointLists(poly1X, poly1Y, poly2X, poly2Y);
-        }
 
         public static int Compare(Polyline poly1, Polyline poly2)
         {
+            Assert.IsTrue(DeepEquals(poly1, poly2));
+
             var poly1X = new List<double>();
             var poly1Y = new List<double>();
             var poly2X = new List<double>();
             var poly2Y = new List<double>();
 
-            for (var i = 0; i < poly1.Paths.Count; i++)
+            for (var i = 0; i < poly1.Parts.Count; i++)
             {
-                PointCollection pt1 = poly1.Paths[i];
-                PointCollection pt2 = poly2.Paths[i];
+                var pt1 = poly1.Parts[i].GetPoints().ToList();
+                var pt2 = poly2.Parts[i].GetPoints().ToList();
                 for (var j = 0; j < pt1.Count; j++)
                 {
                     PopulatePointLists(poly1X, poly1Y, poly2X, poly2Y, pt1, pt2, j);
@@ -77,10 +138,11 @@ namespace ArcGISRuntimeWKTTests
         {
             if (geom1.SpatialReference != null && geom2.SpatialReference != null)
             {
-                if (geom1.SpatialReference.WKID != null && geom2.SpatialReference.WKID != null)
-                    Assert.AreEqual(geom1.SpatialReference.WKID, geom2.SpatialReference.WKID);
-                if (geom1.SpatialReference.WKT != null && geom2.SpatialReference.WKT != null)
-                    Assert.AreEqual(geom1.SpatialReference.WKT, geom2.SpatialReference.WKT);
+                Assert.AreEqual(geom1.SpatialReference.Wkid, geom2.SpatialReference.Wkid);
+                if (geom1.SpatialReference.WkText != null && geom2.SpatialReference.WkText != null)
+                {
+                    Assert.AreEqual(geom1.SpatialReference.WkText, geom2.SpatialReference.WkText);
+                }
             }
 
             if (geom1.Extent != null && geom2.Extent != null)
@@ -108,9 +170,13 @@ namespace ArcGISRuntimeWKTTests
             var wkt1Multi = wkt1.StartsWith("MULTI", StringComparison.CurrentCultureIgnoreCase);
             var wkt2Multi = wkt2.StartsWith("MULTI", StringComparison.CurrentCultureIgnoreCase);
             if (wkt1Multi && !wkt2Multi)
+            {
                 wkt1 = wkt1.Substring(5);
+            }
             else if (!wkt1Multi && wkt2Multi)
+            {
                 wkt2 = wkt2.Substring(5);
+            }
 
             // do some more cleaning on the wkt's
             wkt1 = wkt1.Replace(" (", "(");
@@ -122,6 +188,7 @@ namespace ArcGISRuntimeWKTTests
             wkt1 = array[0];
             wkt2 = array[1];
 
+            Assert.AreEqual(wkt1, wkt2);
             var same = wkt1.Equals(wkt2, StringComparison.CurrentCultureIgnoreCase);
             Assert.IsTrue(same);
             return same;
@@ -137,7 +204,9 @@ namespace ArcGISRuntimeWKTTests
             // outer pair for an equivalent set.
 
             if (wkt1.Length == wkt2.Length)
+            {
                 return new[] {wkt1, wkt2};
+            }
 
             var parens1 = GetParenCharListFromWkt(wkt1);
             var parens2 = GetParenCharListFromWkt(wkt2);
@@ -189,7 +258,9 @@ namespace ArcGISRuntimeWKTTests
                 }
             }
             else
+            {
                 same = false;
+            }
             return same;
         }
 
@@ -197,18 +268,18 @@ namespace ArcGISRuntimeWKTTests
         {
             var wktChars = wkt.ToCharArray();
             var parens = new List<char>();
-            var i = 0;
             foreach (var c in wktChars)
             {
                 if (c == '(' || c == ')')
+                {
                     parens.Add(c);
-                i++;
+                }
             }
             return parens;
         }
 
         private static void PopulatePointLists(List<double> poly1X, List<double> poly1Y, List<double> poly2X,
-            List<double> poly2Y, PointCollection pt1, PointCollection pt2, int j)
+            List<double> poly2Y, List<MapPoint> pt1, List<MapPoint> pt2, int j)
         {
             var mp1 = pt1[j];
             var mp2 = pt2[j];
@@ -228,7 +299,9 @@ namespace ArcGISRuntimeWKTTests
             poly2Y.Sort();
 
             if (poly1X.Count != poly2X.Count || poly1Y.Count != poly2Y.Count)
+            {
                 return 1;
+            }
 
             for (var k = 0; k < poly1X.Count; k++)
             {

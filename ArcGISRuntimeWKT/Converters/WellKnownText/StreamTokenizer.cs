@@ -78,6 +78,7 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         {
             if (reader == null)
             {
+                // ReSharper disable once UseNameofExpression
                 throw new ArgumentNullException("reader");
             }
             _reader = reader;
@@ -169,16 +170,14 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
             var isNumber = false;
             var isWord = false;
 
-            char currentCharacter;
-            char nextCharacter;
             while (finished != 0)
             {
                 // convert int to char
                 var ba = (char) _reader.Peek();
                 char[] ascii = {ba};
 
-                currentCharacter = chars[0];
-                nextCharacter = ascii[0];
+                var currentCharacter = chars[0];
+                var nextCharacter = ascii[0];
                 _currentTokenType = GetType(currentCharacter);
                 var nextTokenType = GetType(nextCharacter);
 
@@ -276,10 +275,22 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         /// <returns>The TokenType the character is.</returns>
         private static TokenType GetType(char character)
         {
-            if (char.IsDigit(character)) return TokenType.Number;
-            if (char.IsLetter(character)) return TokenType.Word;
-            if (character == '\n') return TokenType.Eol;
-            if (char.IsWhiteSpace(character) || char.IsControl(character)) return TokenType.Whitespace;
+            if (char.IsDigit(character))
+            {
+                return TokenType.Number;
+            }
+            if (char.IsLetter(character))
+            {
+                return TokenType.Word;
+            }
+            if (character == '\n')
+            {
+                return TokenType.Eol;
+            }
+            if (char.IsWhiteSpace(character) || char.IsControl(character))
+            {
+                return TokenType.Whitespace;
+            }
             //(Char.IsSymbol(character))
             return TokenType.Symbol;
         }

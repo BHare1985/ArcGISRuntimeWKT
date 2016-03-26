@@ -36,9 +36,11 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using ArcGISRuntimeWKT.Utilities;
 using Esri.ArcGISRuntime.Geometry;
 
 namespace ArcGISRuntimeWKT.Converters.WellKnownText
@@ -133,19 +135,21 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         ///     The next array of Coordinates in the stream, or an empty array of "EMPTY" is the
         ///     next element returned by the stream.
         /// </returns>
-        private static PointCollection GetCoordinates(WktStreamTokenizer tokenizer)
+        private static IEnumerable<MapPoint> GetCoordinates(WktStreamTokenizer tokenizer)
         {
             var coordinates = new PointCollection();
             var nextToken = GetNextEmptyOrOpener(tokenizer);
             if (nextToken == "EMPTY")
+            {
                 return coordinates;
+            }
 
-            var externalCoordinate = new MapPoint {X = GetNextNumber(tokenizer), Y = GetNextNumber(tokenizer)};
+            var externalCoordinate = new MapPoint(GetNextNumber(tokenizer), GetNextNumber(tokenizer));
             coordinates.Add(externalCoordinate);
             nextToken = GetNextCloserOrComma(tokenizer);
             while (nextToken == ",")
             {
-                var internalCoordinate = new MapPoint {X = GetNextNumber(tokenizer), Y = GetNextNumber(tokenizer)};
+                var internalCoordinate = new MapPoint(GetNextNumber(tokenizer), GetNextNumber(tokenizer));
                 coordinates.Add(internalCoordinate);
                 nextToken = GetNextCloserOrComma(tokenizer);
             }
@@ -189,34 +193,11 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
             tokenizer.NextToken();
             var nextWord = tokenizer.GetStringValue();
             if (nextWord == "EMPTY" || nextWord == "(")
+            {
                 return nextWord;
+            }
 
             throw new Exception("Expected 'EMPTY' or '(' but encountered '" + nextWord + "'");
-        }
-
-        /// <summary>
-        ///     Returns the next "(" or number in the stream.
-        /// </summary>
-        /// <param name="tokenizer">
-        ///     Tokenizer over a stream of text in Well-known Text
-        ///     format. The next token must be "(" or a number.
-        /// </param>
-        /// <returns>
-        ///     the next "(" or a number in the stream
-        ///     text.
-        /// </returns>
-        /// <remarks>
-        ///     ParseException is thrown if the next token is not "(" or a number.
-        /// </remarks>
-        private static string GetNextOpenerOrNumber(WktStreamTokenizer tokenizer)
-        {
-            tokenizer.NextToken();
-            var nextWord = tokenizer.GetStringValue();
-            double result;
-            if (nextWord == "(" || double.TryParse(nextWord, out result))
-                return nextWord;
-
-            throw new Exception("Expected '(' or number but encountered '" + nextWord + "'");
         }
 
         /// <summary>
@@ -256,7 +237,9 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         {
             var nextWord = GetNextWord(tokenizer);
             if (nextWord != ")")
+            {
                 throw new Exception("Expected ')' but encountered '" + nextWord + "'");
+            }
         }
 
         /// <summary>
@@ -274,11 +257,26 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         {
             var type = tokenizer.NextToken();
             var token = tokenizer.GetStringValue();
-            if (type == TokenType.Number) throw new Exception("Expected a number but got " + token);
-            if (type == TokenType.Word) return token.ToUpper();
-            if (token == "(") return "(";
-            if (token == ")") return ")";
-            if (token == ",") return ",";
+            if (type == TokenType.Number)
+            {
+                throw new Exception("Expected a number but got " + token);
+            }
+            if (type == TokenType.Word)
+            {
+                return token.ToUpper();
+            }
+            if (token == "(")
+            {
+                return "(";
+            }
+            if (token == ")")
+            {
+                return ")";
+            }
+            if (token == ",")
+            {
+                return ",";
+            }
 
             throw new Exception("Not a valid symbol in WKT format.");
         }
@@ -310,8 +308,7 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
                     geometry = ReadLineStringText(tokenizer);
                     break;
                 case "MULTIPOINT":
-                    geometry = ReadMultiPointText(tokenizer);
-                    break;
+                    throw new NotImplementedException();
                 case "MULTILINESTRING":
                     geometry = ReadMultiLineStringText(tokenizer);
                     break;
@@ -346,49 +343,33 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         /// </returns>
         private static Polygon ReadMultiPolygonText(WktStreamTokenizer tokenizer)
         {
-            var polygons = new Polygon();
             var nextToken = GetNextEmptyOrOpener(tokenizer);
             if (nextToken == "EMPTY")
-                return polygons;
+            {
+                throw new Exception("Empty MultiPolygon");
+            }
 
             var polygon = ReadPolygonText(tokenizer);
-            foreach (PointCollection ring in polygon.Rings) polygons.Rings.Add(ring);
+
+            var polygons = new PolygonBuilder(polygon);
 
             var exteriorRingCcw = false;
+
             // Need to pay attention to whether or not the first exterior ring is CW or CCW, so
             // the other exterior rings match.
-            if (polygon.Rings.Count > 0)
-                exteriorRingCcw = Utilities.Algorithms.IsCCW(polygon.Rings[0]);
+            if (polygon.Parts.Count > 0)
+            {
+                exteriorRingCcw = Algorithms.IsCcw(polygon.Parts[0]);
+            }
 
             nextToken = GetNextCloserOrComma(tokenizer);
             while (nextToken == ",")
             {
                 polygon = ReadPolygonText(tokenizer, exteriorRingCcw, true);
-                foreach (PointCollection ring in polygon.Rings) polygons.Rings.Add(ring);
+                polygons.AddParts(polygon.Parts);
                 nextToken = GetNextCloserOrComma(tokenizer);
             }
-            return polygons;
-        }
-
-        /// <summary>
-        ///     Creates a Polygon using the next token in the stream.
-        /// </summary>
-        /// <param name="tokenizer">
-        ///     Tokenizer over a stream of text in Well-known Text
-        ///     format. The next tokens must form a &lt;Polygon Text&gt;.
-        /// </param>
-        /// <returns>
-        ///     Returns a Polygon specified by the next token
-        ///     in the stream
-        /// </returns>
-        /// <remarks>
-        ///     ParseException is thown if the coordinates used to create the Polygon
-        ///     shell and holes do not form closed linestrings, or if an unexpected
-        ///     token is encountered.
-        /// </remarks>
-        private static Polygon ReadPolygonText(WktStreamTokenizer tokenizer)
-        {
-            return ReadPolygonText(tokenizer, false, false);
+            return polygons.ToGeometry();
         }
 
         /// <summary>
@@ -409,26 +390,31 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         ///     shell and holes do not form closed linestrings, or if an unexpected
         ///     token is encountered.
         /// </remarks>
-        private static Polygon ReadPolygonText(WktStreamTokenizer tokenizer, bool exteriorRingCcw,
-            bool exteriorRingCcwSpecified)
+        private static Polygon ReadPolygonText(WktStreamTokenizer tokenizer, bool exteriorRingCcw = false,
+            bool exteriorRingCcwSpecified = false)
         {
-            var pol = new Polygon();
             var nextToken = GetNextEmptyOrOpener(tokenizer);
             if (nextToken == "EMPTY")
-                return pol;
+            {
+                throw new Exception("Empty Polygon");
+            }
 
             var exteriorRing = GetCoordinates(tokenizer);
+
+
+            IEnumerable<MapPoint> firstRing;
+
             // Exterior ring.  Force it to be CW/CCW to match the first exterior ring of the multipolygon, if it is part of a multipolygon
             if (exteriorRingCcwSpecified)
             {
-                pol.Rings.Add(Utilities.Algorithms.IsCCW(exteriorRing) != exteriorRingCcw
-                    ? Reverse(exteriorRing)
-                    : exteriorRing);
+                firstRing = Algorithms.IsCcw(exteriorRing) != exteriorRingCcw ? Reverse(exteriorRing) : exteriorRing;
             }
             else
             {
-                pol.Rings.Add(exteriorRing);
+                firstRing = exteriorRing;
             }
+
+            var polygonBuilder = new PolygonBuilder(firstRing);
 
             nextToken = GetNextCloserOrComma(tokenizer);
             while (nextToken == ",")
@@ -437,19 +423,23 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
                 var interiorRing = GetCoordinates(tokenizer);
                 var correctedRing = interiorRing;
                 // Make sure interior rings go in the opposite direction of the exterior rings
-                if (Utilities.Algorithms.IsCCW(interiorRing) == exteriorRingCcw)
+                if (Algorithms.IsCcw(interiorRing) == exteriorRingCcw)
                 {
                     correctedRing = Reverse(interiorRing);
                 }
-                pol.Rings.Add(correctedRing); //interior rings
+                polygonBuilder.AddPart(correctedRing); //interior rings
                 nextToken = GetNextCloserOrComma(tokenizer);
             }
-            return pol;
+            return polygonBuilder.ToGeometry();
         }
 
-        private static PointCollection Reverse(PointCollection pointCollection)
+        private static PointCollection Reverse(IEnumerable<MapPoint> pointCollection)
         {
-            if (pointCollection == null) throw new ArgumentNullException("pointCollection");
+            if (pointCollection == null)
+            {
+                // ReSharper disable once UseNameofExpression
+                throw new ArgumentNullException("pointCollection");
+            }
 
             return new PointCollection(pointCollection.Reverse().ToList());
         }
@@ -471,78 +461,15 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         /// </remarks>
         private static MapPoint ReadPointText(WktStreamTokenizer tokenizer)
         {
-            var p = new MapPoint();
             var nextToken = GetNextEmptyOrOpener(tokenizer);
             if (nextToken == "EMPTY")
-                return p;
-            p.X = GetNextNumber(tokenizer);
-            p.Y = GetNextNumber(tokenizer);
+            {
+                throw new Exception("Empty Point");
+            }
+
+            var p = new MapPoint(GetNextNumber(tokenizer), GetNextNumber(tokenizer));
             GetNextCloser(tokenizer);
             return p;
-        }
-
-        /// <summary>
-        ///     Creates a Point using the next token in the stream.
-        /// </summary>
-        /// <param name="tokenizer">
-        ///     Tokenizer over a stream of text in Well-known Text
-        ///     format. The next tokens must form a &lt;Point Text&gt;.
-        /// </param>
-        /// <returns>
-        ///     Returns a Point specified by the next token in
-        ///     the stream.
-        /// </returns>
-        /// <remarks>
-        ///     ParseException is thrown if an unexpected token is encountered.
-        /// </remarks>
-        private static MultiPoint ReadMultiPointText(WktStreamTokenizer tokenizer)
-        {
-            MultiPoint mp = new MultiPoint();
-            var nextToken = GetNextEmptyOrOpener(tokenizer);
-            if (nextToken == "EMPTY")
-                return mp;
-            mp.Points.Add(ReadMapPointText(tokenizer));
-            nextToken = GetNextCloserOrComma(tokenizer);
-            while (nextToken == ",")
-            {
-                mp.Points.Add(ReadMapPointText(tokenizer));
-                nextToken = GetNextCloserOrComma(tokenizer);
-            }
-            return mp;
-        }
-
-        /// <summary>
-        ///     Creates a Point using the next token in the stream.
-        /// </summary>
-        /// <param name="tokenizer">
-        ///     Tokenizer over a stream of text in Well-known Text
-        ///     format. The next tokens must form a &lt;Point Text&gt;.
-        /// </param>
-        /// <returns>
-        ///     Returns a Point specified by the next token in
-        ///     the stream.
-        /// </returns>
-        /// <remarks>
-        ///     ParseException is thrown if an unexpected token is encountered.
-        /// </remarks>
-        private static MapPoint ReadMapPointText(WktStreamTokenizer tokenizer)
-        {
-            var nextToken = GetNextOpenerOrNumber(tokenizer);
-
-            double x, y;
-            if (nextToken == "(")
-            {
-                x = GetNextNumber(tokenizer);
-                y = GetNextNumber(tokenizer);
-                GetNextCloser(tokenizer);
-            }
-            else
-            {
-                x = double.Parse(nextToken);
-                y = GetNextNumber(tokenizer);
-            }
-
-            return new MapPoint(x, y);
         }
 
         /// <summary>
@@ -555,19 +482,21 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         /// <returns>a <see cref="Polyline" /> specified by the next token in the stream</returns>
         private static Polyline ReadMultiLineStringText(WktStreamTokenizer tokenizer)
         {
-            var lines = new Polyline();
             var nextToken = GetNextEmptyOrOpener(tokenizer);
             if (nextToken == "EMPTY")
-                return lines;
+            {
+                throw new Exception("Empty Multiline");
+            }
 
-            lines.Paths.Add(GetCoordinates(tokenizer));
+            var lines = new PolylineBuilder(GetCoordinates(tokenizer));
+
             nextToken = GetNextCloserOrComma(tokenizer);
             while (nextToken == ",")
             {
-                lines.Paths.Add(GetCoordinates(tokenizer));
+                lines.AddPart(GetCoordinates(tokenizer));
                 nextToken = GetNextCloserOrComma(tokenizer);
             }
-            return lines;
+            return lines.ToGeometry();
         }
 
         /// <summary>
@@ -583,35 +512,7 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         /// </remarks>
         private static Polyline ReadLineStringText(WktStreamTokenizer tokenizer)
         {
-            var p = new Polyline();
-            p.Paths.Add(GetCoordinates(tokenizer));
-            return p;
-        }
-
-        /// <summary>
-        ///     Creates a <see cref="GeometryCollection" /> using the next token in the stream.
-        /// </summary>
-        /// <param name="tokenizer">
-        ///     Tokenizer over a stream of text in Well-known Text
-        ///     format. The next tokens must form a GeometryCollection Text.
-        /// </param>
-        /// <returns>
-        ///     A <see cref="GeometryCollection" /> specified by the next token in the stream.
-        /// </returns>
-        private static GeometryCollection ReadGeometryCollectionText(WktStreamTokenizer tokenizer)
-        {
-            var geometries = new GeometryCollection();
-            var nextToken = GetNextEmptyOrOpener(tokenizer);
-            if (nextToken.Equals("EMPTY"))
-                return geometries;
-            geometries.Add(ReadGeometryTaggedText(tokenizer));
-            nextToken = GetNextCloserOrComma(tokenizer);
-            while (nextToken.Equals(","))
-            {
-                geometries.Add(ReadGeometryTaggedText(tokenizer));
-                nextToken = GetNextCloserOrComma(tokenizer);
-            }
-            return geometries;
+            return new Polyline(GetCoordinates(tokenizer));
         }
     }
 }
