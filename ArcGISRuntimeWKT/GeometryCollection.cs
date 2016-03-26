@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using ESRI.ArcGIS.Client.Geometry;
+using Esri.ArcGISRuntime.Geometry;
 
 namespace ArcGISRuntimeWKT
 {

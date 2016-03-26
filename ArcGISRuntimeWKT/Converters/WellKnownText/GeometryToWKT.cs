@@ -40,10 +40,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
 using System.Linq;
-using ESRI.ArcGIS.Client.Geometry;
+using Esri.ArcGISRuntime.Geometry;
 using EsriSlWkt.Utilities;
 
-namespace EsriSlWkt.Converters.WellKnownText
+namespace ArcGISRuntimeWKT.Converters.WellKnownText
 {
 	/// <summary>
 	/// Outputs the textual representation of a <see cref="Geometry"/> instance.

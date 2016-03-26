@@ -39,19 +39,19 @@
 using System;
 using System.IO;
 using ArcGISRuntimeWKT;
-using ESRI.ArcGIS.Client.Geometry;
+using Esri.ArcGISRuntime.Geometry;
 using EsriSlWkt.Utilities;
 
-namespace EsriSlWkt.Converters.WellKnownBinary
+namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
 {
 	/// <summary>
-	/// Converts a <see cref="ESRI.ArcGIS.Client.Geometry"/> instance to a Well-known Binary string representation.
+	/// Converts a <see cref="Esri.ArcGISRuntime.Geometry"/> instance to a Well-known Binary string representation.
 	/// </summary>
 	/// <remarks>
-	/// <para>The Well-known Binary Representation for <see cref="ESRI.ArcGIS.Client.Geometry"/> (WKBGeometry) provides a portable 
-	/// representation of a <see cref="ESRI.ArcGIS.Client.Geometry"/> value as a contiguous stream of bytes. It permits <see cref="ESRI.ArcGIS.Client.Geometry"/> 
+	/// <para>The Well-known Binary Representation for <see cref="Esri.ArcGISRuntime.Geometry"/> (WKBGeometry) provides a portable 
+	/// representation of a <see cref="Esri.ArcGISRuntime.Geometry"/> value as a contiguous stream of bytes. It permits <see cref="Esri.ArcGISRuntime.Geometry"/> 
 	/// values to be exchanged between an ODBC client and an SQL database in binary form.</para>
-	/// <para>The Well-known Binary Representation for <see cref="ESRI.ArcGIS.Client.Geometry"/> is obtained by serializing a <see cref="ESRI.ArcGIS.Client.Geometry"/>
+	/// <para>The Well-known Binary Representation for <see cref="Esri.ArcGISRuntime.Geometry"/> is obtained by serializing a <see cref="Esri.ArcGISRuntime.Geometry"/>
 	/// instance as a sequence of numeric types drawn from the set {Unsigned Integer, Double} and
 	/// then serializing each numeric type as a sequence of bytes using one of two well defined,
 	/// standard, binary representations for numeric types (NDR, XDR). The specific binary encoding
@@ -170,7 +170,7 @@ namespace EsriSlWkt.Converters.WellKnownBinary
 					WriteUInt32((uint)WKBGeometryType.wkbMultiPolygon, bWriter, byteorder);
 					break;
 				//Geometrycollections are type 7.
-				case "ESRI.ArcGIS.Client.GeometryCollection":
+				case "Esri.ArcGISRuntime.GeometryCollection":
 					WriteUInt32((uint)WKBGeometryType.wkbGeometryCollection, bWriter, byteorder);
 					break;
 				//If the type is not of the above 7 throw an exception.
@@ -213,7 +213,7 @@ namespace EsriSlWkt.Converters.WellKnownBinary
 					WriteMultiPolygon((Polygon)geometry, bWriter, byteorder);
 					break;
 				//Write the Geometrycollection.
-				//case "ESRI.ArcGIS.Client.GeometryCollection":
+				//case "Esri.ArcGISRuntime.GeometryCollection":
 				//    WriteGeometryCollection((GeometryCollection) geometry, bWriter, byteorder);
 				//    break;
 				//If the type is not of the above 7 throw an exception.

@@ -35,7 +35,7 @@
  *
  */
 
-namespace EsriSlWkt.Converters.WellKnownBinary
+namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
 {
     /// <summary>
     /// Enumeration to determine geometrytype in Well-known Binary

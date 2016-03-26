@@ -38,19 +38,19 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using ArcGISRuntimeWKT;
-using ESRI.ArcGIS.Client.Geometry;
+using ArcGISRuntimeWKT.Converters.WellKnownBinary;
+using Esri.ArcGISRuntime.Geometry;
 
-namespace EsriSlWkt.Converters.WellKnownBinary
+namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
 {
 	/// <summary>
-	///  Converts Well-known Binary representations to a <see cref="ESRI.ArcGIS.Client.Geometry"/> instance.
+	///  Converts Well-known Binary representations to a <see cref="Geometry"/> instance.
 	/// </summary>
 	/// <remarks>
-	/// <para>The Well-known Binary Representation for <see cref="ESRI.ArcGIS.Client.Geometry"/> (WKBGeometry) provides a portable 
-	/// representation of a <see cref="ESRI.ArcGIS.Client.Geometry"/> value as a contiguous stream of bytes. It permits <see cref="ESRI.ArcGIS.Client.Geometry"/> 
+	/// <para>The Well-known Binary Representation for <see cref="Geometry"/> (WKBGeometry) provides a portable 
+	/// representation of a <see cref="Geometry"/> value as a contiguous stream of bytes. It permits <see cref="Geometry"/> 
 	/// values to be exchanged between an ODBC client and an SQL database in binary form.</para>
-	/// <para>The Well-known Binary Representation for <see cref="ESRI.ArcGIS.Client.Geometry"/> is obtained by serializing a <see cref="ESRI.ArcGIS.Client.Geometry"/>
+	/// <para>The Well-known Binary Representation for <see cref="Geometry"/> is obtained by serializing a <see cref="Geometry"/>
 	/// instance as a sequence of numeric types drawn from the set {Unsigned Integer, Double} and
 	/// then serializing each numeric type as a sequence of bytes using one of two well defined,
 	/// standard, binary representations for numeric types (NDR, XDR). The specific binary encoding
@@ -61,10 +61,10 @@ namespace EsriSlWkt.Converters.WellKnownBinary
 	public class GeometryFromWKB
 	{
 		/// <summary>
-		/// Creates a <see cref="ESRI.ArcGIS.Client.Geometry"/> from the supplied byte[] containing the Well-known Binary representation.
+		/// Creates a <see cref="Geometry"/> from the supplied byte[] containing the Well-known Binary representation.
 		/// </summary>
 		/// <param name="bytes">byte[] containing the Well-known Binary representation.</param>
-		/// <returns>A <see cref="ESRI.ArcGIS.Client.Geometry"/> bases on the supplied Well-known Binary representation.</returns>
+		/// <returns>A <see cref="Geometry"/> bases on the supplied Well-known Binary representation.</returns>
 		public static Geometry Parse(byte[] bytes)
 		{
 			// Create a memory stream using the suppiled byte array.
@@ -80,10 +80,10 @@ namespace EsriSlWkt.Converters.WellKnownBinary
 		}
 
 		/// <summary>
-		/// Creates a <see cref="ESRI.ArcGIS.Client.Geometry"/> based on the Well-known binary representation.
+		/// Creates a <see cref="Geometry"/> based on the Well-known binary representation.
 		/// </summary>
 		/// <param name="reader">A <see cref="System.IO.BinaryReader">BinaryReader</see> used to read the Well-known binary representation.</param>
-		/// <returns>A <see cref="ESRI.ArcGIS.Client.Geometry"/> based on the Well-known binary representation.</returns>
+		/// <returns>A <see cref="Geometry"/> based on the Well-known binary representation.</returns>
 		public static Geometry Parse(BinaryReader reader)
 		{
 			// Get the first Byte in the array. This specifies if the WKB is in

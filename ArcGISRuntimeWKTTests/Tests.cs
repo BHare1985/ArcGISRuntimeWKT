@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using EsriSlWkt.Converters.WellKnownText;
-using ESRI.ArcGIS.Client.Geometry;
+using ArcGISRuntimeWKT.Converters.WellKnownText;
+using Esri.ArcGISRuntime.Geometry;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System;

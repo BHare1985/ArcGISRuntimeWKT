@@ -38,11 +38,11 @@
 using System;
 using System.IO;
 using System.Globalization;
-using ESRI.ArcGIS.Client.Geometry;
+using Esri.ArcGISRuntime.Geometry;
 using System.Linq;
 using ArcGISRuntimeWKT;
 
-namespace EsriSlWkt.Converters.WellKnownText
+namespace ArcGISRuntimeWKT.Converters.WellKnownText
 {
 	/// <summary>
 	///  Converts a Well-known Text representation to a <see cref="Geometry"/> instance.

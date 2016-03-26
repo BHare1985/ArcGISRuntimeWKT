@@ -2,7 +2,7 @@
 using System.IO;
 using System.Reflection;
 using System.Security;
-using ESRI.ArcGIS.Client.Geometry;
+using Esri.ArcGISRuntime.Geometry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [assembly: SecurityTransparent]
@@ -36,11 +36,11 @@ namespace UnitTestsSL
 					string line = reader.ReadToEnd();
 
 					Console.WriteLine(string.Format("\tWKT:\n{0}", line));
-					Geometry geom = EsriSlWkt.Converters.WellKnownText.GeometryFromWKT.Parse(line);
+					Geometry geom = ArcGISRuntimeWKT.Converters.WellKnownText.GeometryFromWKT.Parse(line);
 					Polygon poly = geom as Polygon;
-					string newWkt = EsriSlWkt.Converters.WellKnownText.GeometryToWKT.Write(geom);
+					string newWkt = ArcGISRuntimeWKT.Converters.WellKnownText.GeometryToWKT.Write(geom);
 					Console.WriteLine(string.Format("\tA polygon was created from the above WKT. Then WKT was extracted from that object. THe new WKT is:\n{0}", newWkt));
-					Geometry geom2 = EsriSlWkt.Converters.WellKnownText.GeometryFromWKT.Parse(newWkt);
+					Geometry geom2 = ArcGISRuntimeWKT.Converters.WellKnownText.GeometryFromWKT.Parse(newWkt);
 					Polygon poly2 = geom2 as Polygon;
 
 					PolygonComparer.Compare(poly, poly2);

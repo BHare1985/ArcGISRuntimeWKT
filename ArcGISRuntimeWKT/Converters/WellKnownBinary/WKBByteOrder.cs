@@ -15,7 +15,7 @@
 // along with SharpMap; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
 
-namespace EsriSlWkt.Converters.WellKnownBinary
+namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
 {
     /// <summary>
     /// Specifies the specific binary encoding (NDR or XDR) used for a geometry byte stream
