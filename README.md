@@ -2,12 +2,14 @@
 
 This is a unit-tested C# library that can convert [Well Known Text (WKT)](https://en.wikipedia.org/wiki/Well-known_text) / [Well Known Binary (WKB)](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary) to and from [ESRI's ArcGIS Runtime Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm)
 
+This library is to be used in conjection with NuGet package `Esri.ArcGISRuntime`
+
+Created/Testest on Visual Studio 2015, with ArcGISRuntime version 10.2.7.1234.
 
 #### Creating a geometry
 - [GeometryFromWkb(Byte[])](#M-ArcGISRuntimeWKT-Parser-GeometryFromWkb-System-Byte[]- 'Go To Here')
 - [GeometryFromWkb(BinaryReader)](#M-ArcGISRuntimeWKT-Parser-GeometryFromWkb-System-IO-BinaryReader- 'Go To Here')
     
-     
 - [GeometryFromWkt(String)](#M-ArcGISRuntimeWKT-Parser-GeometryFromWkt-System-String- 'Go To Here')
 - [GeometryFromWkt(TextReader)](#M-ArcGISRuntimeWKT-Parser-GeometryFromWkt-System-IO-TextReader- 'Go To Here')
 
@@ -28,11 +30,11 @@ This is a unit-tested C# library that can convert [Well Known Text (WKT)](https:
 
 ##### Summary
 
-Creates a [Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') from the supplied byte[] containing the Well-known Binary representation.
+Creates a [Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry') from the supplied byte[] containing the Well-known Binary representation.
 
 ##### Returns
 
-A [Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') bases on the supplied Well-known Binary representation.
+A [Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry') bases on the supplied Well-known Binary representation.
 
 ##### Parameters
 
@@ -45,11 +47,11 @@ A [Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') bases
 
 ##### Summary
 
-Creates a [Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') based on the Well-known binary representation.
+Creates a [Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry') based on the Well-known binary representation.
 
 ##### Returns
 
-A [Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') based on the Well-known binary representation.
+A [Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry') based on the Well-known binary representation.
 
 ##### Parameters
 
@@ -62,28 +64,28 @@ A [Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') based
 
 ##### Summary
 
-Converts a Well-known text representation to a [Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry').
+Converts a Well-known text representation to a [Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry').
 
 ##### Returns
 
-Returns a [Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') specified by wellKnownText. Throws an exception if there is a parsing problem.
+Returns a [Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry') specified by wellKnownText. Throws an exception if there is a parsing problem.
 
 ##### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| wellKnownText | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | A [Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') tagged text string ( see the OpenGIS Simple Features Specification. ) |
+| wellKnownText | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | A [Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry') tagged text string ( see the OpenGIS Simple Features Specification. ) |
 
 <a name='M-ArcGISRuntimeWKT-Parser-GeometryFromWkt-System-IO-TextReader-'></a>
 ## GeometryFromWkt(reader) `method` [#](#M-ArcGISRuntimeWKT-Parser-GeometryFromWkt-System-IO-TextReader- 'Go To Here') 
 
 ##### Summary
 
-Converts a Well-known Text representation to a [Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry').
+Converts a Well-known Text representation to a [Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry').
 
 ##### Returns
 
-Returns a [Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') read from StreamReader. An exception will be thrown if there is a parsing problem.
+Returns a [Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry') read from StreamReader. An exception will be thrown if there is a parsing problem.
 
 ##### Parameters
 
@@ -106,7 +108,7 @@ WKB representation of the geometry
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| g | [Esri.ArcGISRuntime.Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') | The geometry to write |
+| g | [Esri.ArcGISRuntime.Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry') | The geometry to write |
 
 <a name='M-ArcGISRuntimeWKT-Parser-GeometryToWkb-Esri.ArcGISRuntime.Geometry,ArcGISRuntimeWKT-WkbByteOrder-'></a>
 ## GeometryToWkb(g,wkbByteOrder) `method` [#](#M-ArcGISRuntimeWKT-Parser-GeometryToWkb-Esri.ArcGISRuntime.Geometry,ArcGISRuntimeWKT-WkbByteOrder- 'Go To Here') 
@@ -123,7 +125,7 @@ WKB representation of the geometry
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| g | [Esri.ArcGISRuntime.Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') | The geometry to write |
+| g | [Esri.ArcGISRuntime.Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry') | The geometry to write |
 | wkbByteOrder | [ArcGISRuntimeWKT.WkbByteOrder](#T-ArcGISRuntimeWKT-WkbByteOrder 'ArcGISRuntimeWKT.WkbByteOrder') | Byte order |
 
 <a name='M-ArcGISRuntimeWKT-Parser-GeometryToWkt-Esri.ArcGISRuntime.Geometry-'></a>
@@ -141,7 +143,7 @@ A <Geometry Tagged Text> string (see the OpenGIS Simple Features Specification)
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| geometry | [Esri.ArcGISRuntime.Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') | A Geometry to write. |
+| geometry | [Esri.ArcGISRuntime.Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry') | A Geometry to write. |
 
 
 <a name='M-ArcGISRuntimeWKT-Parser-GeometryToWkt-Esri.ArcGISRuntime.Geometry,System-IO-StringWriter-'></a>
@@ -155,7 +157,7 @@ Converts a Geometry to its Well-known Text representation.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| geometry | [Esri.ArcGISRuntime.Geometry](#T-Esri.ArcGISRuntime.Geometry 'Esri.ArcGISRuntime.Geometry') | A geometry to process. |
+| geometry | [Esri.ArcGISRuntime.Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm 'Esri.ArcGISRuntime.Geometry') | A geometry to process. |
 | writer | [System.IO.StringWriter](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.IO.StringWriter 'System.IO.StringWriter') | Stream to write out the geometry's text representation. |
 
 ##### Remarks
