@@ -1,11 +1,27 @@
 # ArcGISRuntimeWKT
 
-This is a unit-tested C# library that can convert [Well Known Text (WKT)](https://en.wikipedia.org/wiki/Well-known_text) / [Well Known Binary (WKB)](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary) to and from [ESRI's ArcGIS Runtime Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm)
+This is a unit-tested C# library that can convert [Well Known Text (WKT)](https://en.wikipedia.org/wiki/Well-known_text) / [Well Known Binary (WKB)](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary) to and from [ESRI's ArcGIS Runtime Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm).
 
-This library is to be used in conjection with NuGet package `Esri.ArcGISRuntime`
+The motivation for this library is a no-dependency and small footprint WKT/WKB parser. It has some [limited-functionality](NotSupported) but is a alternative to more robust but bloated libraries such as [SharpMap](https://sharpmap.codeplex.com/)
 
-Created/Testest on Visual Studio 2015, with ArcGISRuntime version 10.2.7.1234.
+This library is to be used in conjection with NuGet package `Esri.ArcGISRuntime` for .NET
 
+
+
+
+## Usage
+#### Example
+```csharp
+using Esri.ArcGISRuntime.Geometry;
+using ArcGISRuntimeWKT;
+
+Geometry geometry = Parser.GeometryFromWkt("LINESTRING(9.3 26.93,21 34,27 30)");
+Console.Write(geometry.GetType()); //Esri.ArcGISRuntime.Geometry.Polyline
+
+var point = new MapPoint(30, 20);
+string wkt = Parser.GeometryToWkt(point);
+Console.Write(wkt); //POINT(30, 20)
+```
 #### Creating a geometry
 - [GeometryFromWkb(Byte[])](#M-ArcGISRuntimeWKT-Parser-GeometryFromWkb-System-Byte[]- 'Go To Here')
 - [GeometryFromWkb(BinaryReader)](#M-ArcGISRuntimeWKT-Parser-GeometryFromWkb-System-IO-BinaryReader- 'Go To Here')
@@ -21,7 +37,36 @@ Created/Testest on Visual Studio 2015, with ArcGISRuntime version 10.2.7.1234.
 - [GeometryToWkt(Geometry)](#M-ArcGISRuntimeWKT-Parser-GeometryToWkt-Esri.ArcGISRuntime.Geometry- 'Go To Here')
 - [GeometryToWkt(Geometry, StringWriter)](#M-ArcGISRuntimeWKT-Parser-GeometryToWkt-Esri.ArcGISRuntime.Geometry,System-IO-StringWriter- 'Go To Here')
 
+<a name='NotSupported'></a>
+## Not Supported
+The following WKT and WKB are not supported at this time:
+MultiPoint, GeometryCollection, CircularString, CompoundCurve, CurvePolygon, MultiCurve, MultiSurface, Curve, Surface, PolyhedralSurface, TIN, Triangle, 
 
+## Test Enviorment
+Created/Testest on Visual Studio 2015, with ArcGISRuntime version 10.2.7.1234.
+
+---
+
+### Well-Known Binary
+The Well-known Binary (WKB) representation for Geometry provides a portable representation of a Geometry value as a contiguous stream of bytes. It permits Geometry values to be exchanged between an ODBC client and an SQL database in binary form.
+
+The Well-known Binary Representation for Geometry is obtained by serializing a Geometry instance as a sequence of numeric types drawn from the set {Unsigned Integer, Double} and then serializing each numeric type as a sequence of bytes using one of two well defined, standard, binary representations for numeric types (NDR, XDR). The specific binary encoding (NDR or XDR) used for a geometry byte stream is described by a one byte tag that precedes the serialized bytes. The only difference between the two encodings of geometry is one of byte order, the XDR encoding is Big Endian, the NDR encoding is Little Endian.
+
+### Well-Known Text
+The Well-Known Text (WKT) representation of Geometry is designed to exchange geometry data in ASCII form.
+Examples of WKT representations of the most geometry objects are:
+
+| Representation  | WKT | Supported|
+| ---- | ---- | ----------- |
+|Point|POINT(15 20)|True|
+|LineString with four points|LINESTRING(0 0, 10 10, 20 25, 50 60)|True|
+|Polygon with one exterior ring and one interior ring|POLYGON((0 0,10 0,10 10,0 10,0 0),(5 5,7 5,7 7,5 7, 5 5))|True|
+|MultiPoint with three Point values|MULTIPOINT(0 0, 20 20, 60 60)|False|
+|MultiLineString with two LineString values|MULTILINESTRING((10 10, 20 20), (15 15, 30 15))|True|
+|MultiPolygon with two Polygon values|MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0)),((5 5,7 5,7 7,5 7, 5 5)))|True|
+|GeometryCollection consisting of two Point values and one LineString|GEOMETRYCOLLECTION(POINT(10 10),POINT(30 30),LINESTRING(15 15, 20 20))|False|
+
+---
 
 # Methods
 
