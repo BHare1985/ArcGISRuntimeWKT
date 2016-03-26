@@ -12,7 +12,7 @@ using System.IO;
 // a C# StringTokenizer
 //  http://sourceforge.net/snippet/detail.php?type=snippet&id=101171
 
-namespace ArcGISRuntimeWKT.Converters.WellKnownText
+namespace ArcGISRuntimeWKT
 {
     /// <summary>
     ///     The StreamTokenizer class takes an input stream and parses it into "tokens", allowing the tokens to be read one at

@@ -1,4 +1,4 @@
-namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
+namespace ArcGISRuntimeWKT
 {
     /// <summary>
     ///     Enumeration to determine geometrytype in Well-known Binary

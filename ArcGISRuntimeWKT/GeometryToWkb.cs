@@ -5,7 +5,7 @@ using System.Linq;
 using ArcGISRuntimeWKT.Utilities;
 using Esri.ArcGISRuntime.Geometry;
 
-namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
+namespace ArcGISRuntimeWKT
 {
     /// <summary>
     ///     Converts a <see cref="Geometry" /> instance to a Well-known Binary string representation.
@@ -30,41 +30,6 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
     /// </remarks>
     public class GeometryToWkb
     {
-        //private const byte WKBByteOrder = 0;
-
-        /// <summary>
-        ///     Writes a geometry to a byte array using little endian byte encoding
-        /// </summary>
-        /// <param name="g">The geometry to write</param>
-        /// <returns>WKB representation of the geometry</returns>
-        public static byte[] Write(Geometry g)
-        {
-            return Write(g, WkbByteOrder.Ndr);
-        }
-
-        /// <summary>
-        ///     Writes a geometry to a byte array using the specified encoding.
-        /// </summary>
-        /// <param name="g">The geometry to write</param>
-        /// <param name="wkbByteOrder">Byte order</param>
-        /// <returns>WKB representation of the geometry</returns>
-        public static byte[] Write(Geometry g, WkbByteOrder wkbByteOrder)
-        {
-            var ms = new MemoryStream();
-            var bw = new BinaryWriter(ms);
-
-            //Write the byteorder format.
-            bw.Write((byte) wkbByteOrder);
-
-            //Write the type of this geometry
-            WriteType(g, bw, wkbByteOrder);
-
-            //Write the geometry
-            WriteGeometry(g, bw, wkbByteOrder);
-
-            return ms.ToArray();
-        }
-
         /// <summary>
         ///     Writes an unsigned integer to the binarywriter using the specified encoding
         /// </summary>
@@ -113,7 +78,7 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
         /// <param name="geometry">The geometry to determine the type of.</param>
         /// <param name="bWriter">Binary Writer</param>
         /// <param name="byteorder">Byte order</param>
-        private static void WriteType(Geometry geometry, BinaryWriter bWriter, WkbByteOrder byteorder)
+        internal static void WriteType(Geometry geometry, BinaryWriter bWriter, WkbByteOrder byteorder)
         {
             //Determine the type of the geometry.
             switch (geometry.GetType().FullName)
@@ -158,7 +123,7 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
         /// <param name="geometry">The geometry to be written.</param>
         /// <param name="bWriter"></param>
         /// <param name="byteorder">Byte order</param>
-        private static void WriteGeometry(Geometry geometry, BinaryWriter bWriter, WkbByteOrder byteorder)
+        internal static void WriteGeometry(Geometry geometry, BinaryWriter bWriter, WkbByteOrder byteorder)
         {
             switch (geometry.GetType().FullName)
             {

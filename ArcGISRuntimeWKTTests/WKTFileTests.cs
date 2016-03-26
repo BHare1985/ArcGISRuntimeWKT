@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using ArcGISRuntimeWKT.Converters.WellKnownText;
+using ArcGISRuntimeWKT;
 using Esri.ArcGISRuntime.Geometry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -34,13 +34,13 @@ namespace ArcGISRuntimeWKTTests
                     var line = reader.ReadToEnd();
 
                     Console.WriteLine("\tWKT:\n{0}", line);
-                    var geom = GeometryFromWkt.Parse(line);
+                    var geom = Parser.GeometryFromWkt(line);
                     var poly = geom as Polygon;
-                    var newWkt = GeometryToWkt.Write(geom);
+                    var newWkt = Parser.GeometryToWkt(geom);
                     Console.WriteLine(
                         "\tA polygon was created from the above WKT. Then WKT was extracted from that object. THe new WKT is:\n{0}",
                         newWkt);
-                    var geom2 = GeometryFromWkt.Parse(newWkt);
+                    var geom2 = Parser.GeometryFromWkt(newWkt);
                     var poly2 = geom2 as Polygon;
 
                     PolygonComparer.Compare(poly, poly2);

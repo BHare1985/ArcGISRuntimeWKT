@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using ArcGISRuntimeWKT.Converters.WellKnownText;
+using ArcGISRuntimeWKT;
 using Esri.ArcGISRuntime.Geometry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -16,7 +16,7 @@ namespace ArcGISRuntimeWKTTests
         {
             const string wktLine =
                 "LINESTRING(19.51171875 -3.515625, 17.05078125 10.37109375, 15.64453125 -8.26171875, 19.51171875 -16.171875)";
-            var actual = GeometryFromWkt.Parse(wktLine) as Polyline;
+            var actual = Parser.GeometryFromWkt(wktLine) as Polyline;
 
             var mp1 = new MapPoint(19.51171875, -3.515625);
             var mp2 = new MapPoint(17.05078125, 10.37109375);
@@ -32,7 +32,7 @@ namespace ArcGISRuntimeWKTTests
         public void MultiLineFromWkt()
         {
             const string wktMultiLineString = "MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))";
-            var actual = GeometryFromWkt.Parse(wktMultiLineString) as Polyline;
+            var actual = Parser.GeometryFromWkt(wktMultiLineString) as Polyline;
 
             var mp1 = new MapPoint(10, 10);
             var mp2 = new MapPoint(20, 20);
@@ -56,7 +56,7 @@ namespace ArcGISRuntimeWKTTests
         {
             const string wktMultiPoly =
                 "MULTIPOLYGON (((30 20, 10 40, 45 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))";
-            var actual = GeometryFromWkt.Parse(wktMultiPoly) as Polygon;
+            var actual = Parser.GeometryFromWkt(wktMultiPoly) as Polygon;
 
             var mp1 = new MapPoint(30, 20);
             var mp2 = new MapPoint(10, 40);
@@ -79,7 +79,7 @@ namespace ArcGISRuntimeWKTTests
         {
             const string wktMultiPolyWithHole =
                 "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 45 20, 30 5, 10 10, 10 30, 20 35),(30 20, 20 25, 20 15, 30 20)))";
-            var actual = GeometryFromWkt.Parse(wktMultiPolyWithHole) as Polygon;
+            var actual = Parser.GeometryFromWkt(wktMultiPolyWithHole) as Polygon;
 
             //(40 40, 20 45, 45 30, 40 40)
             var mp1 = new MapPoint(40, 40);
@@ -113,7 +113,7 @@ namespace ArcGISRuntimeWKTTests
         public void PointFromWkt()
         {
             const string wktPoint = "POINT(25.48828125 -1.93359375)";
-            var actual = GeometryFromWkt.Parse(wktPoint) as MapPoint;
+            var actual = Parser.GeometryFromWkt(wktPoint) as MapPoint;
             var expected = new MapPoint(25.48828125, -1.93359375);
 
             PolygonComparer.Compare(expected, actual);
@@ -124,7 +124,7 @@ namespace ArcGISRuntimeWKTTests
         {
             const string wktPoly =
                 "POLYGON((15.29296875 23.203125, 25.13671875 22.67578125, 19.51171875 16.34765625, 15.29296875 23.203125))";
-            var actual = GeometryFromWkt.Parse(wktPoly) as Polygon;
+            var actual = Parser.GeometryFromWkt(wktPoly) as Polygon;
             var mp1 = new MapPoint(15.29296875, 23.203125);
             var mp2 = new MapPoint(25.13671875, 22.67578125);
             var mp3 = new MapPoint(19.51171875, 16.34765625);
@@ -142,7 +142,7 @@ namespace ArcGISRuntimeWKTTests
         {
             const string wktPolyWithHole =
                 "POLYGON((3.8671875 30.5859375, 35.33203125 23.90625, 20.390625 -2.109375, -6.6796875 8.4375, 3.8671875 30.5859375),(15.29296875 23.203125, 25.13671875 22.67578125, 19.51171875 16.34765625, 15.29296875 23.203125))";
-            var actual = GeometryFromWkt.Parse(wktPolyWithHole) as Polygon;
+            var actual = Parser.GeometryFromWkt(wktPolyWithHole) as Polygon;
 
             var mp1 = new MapPoint(3.8671875, 30.5859375);
             var mp2 = new MapPoint(35.33203125, 23.90625);

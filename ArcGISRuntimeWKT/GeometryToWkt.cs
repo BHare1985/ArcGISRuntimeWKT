@@ -6,7 +6,7 @@ using System.Linq;
 using ArcGISRuntimeWKT.Utilities;
 using Esri.ArcGISRuntime.Geometry;
 
-namespace ArcGISRuntimeWKT.Converters.WellKnownText
+namespace ArcGISRuntimeWKT
 {
     /// <summary>
     ///     Outputs the textual representation of a <see cref="Geometry" /> instance.
@@ -53,40 +53,11 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         #region Methods
 
         /// <summary>
-        ///     Converts a Geometry to its Well-known Text representation.
-        /// </summary>
-        /// <param name="geometry">A Geometry to write.</param>
-        /// <returns>
-        ///     A &lt;Geometry Tagged Text&gt; string (see the OpenGIS Simple
-        ///     Features Specification)
-        /// </returns>
-        public static string Write(Geometry geometry)
-        {
-            var sw = new StringWriter();
-            Write(geometry, sw);
-            return sw.ToString();
-        }
-
-        /// <summary>
-        ///     Converts a Geometry to its Well-known Text representation.
-        /// </summary>
-        /// <param name="geometry">A geometry to process.</param>
-        /// <param name="writer">Stream to write out the geometry's text representation.</param>
-        /// <remarks>
-        ///     Geometry is written to the output stream as &lt;Gemoetry Tagged Text&gt; string (see the OpenGIS
-        ///     Simple Features Specification).
-        /// </remarks>
-        public static void Write(Geometry geometry, StringWriter writer)
-        {
-            AppendGeometryTaggedText(geometry, writer);
-        }
-
-        /// <summary>
         ///     Converts a Geometry to &lt;Geometry Tagged Text &gt; format, then Appends it to the writer.
         /// </summary>
         /// <param name="geometry">The Geometry to process.</param>
         /// <param name="writer">The output stream to Append to.</param>
-        private static void AppendGeometryTaggedText(Geometry geometry, StringWriter writer)
+        internal static void AppendGeometryTaggedText(Geometry geometry, StringWriter writer)
         {
             if (geometry == null)
             {

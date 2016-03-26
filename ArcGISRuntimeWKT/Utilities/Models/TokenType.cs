@@ -2,7 +2,7 @@
 
 #endregion
 
-namespace ArcGISRuntimeWKT.Converters.WellKnownText
+namespace ArcGISRuntimeWKT
 {
     /// <summary>
     ///     Represents the type of token created by the StreamTokenizer class.

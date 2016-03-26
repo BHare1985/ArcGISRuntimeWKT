@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Esri.ArcGISRuntime.Geometry;
 
-namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
+namespace ArcGISRuntimeWKT
 {
     /// <summary>
     ///     Converts Well-known Binary representations to a <see cref="Geometry" /> instance.
@@ -29,25 +29,6 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
     public class GeometryFromWkb
     {
         /// <summary>
-        ///     Creates a <see cref="Geometry" /> from the supplied byte[] containing the Well-known Binary representation.
-        /// </summary>
-        /// <param name="bytes">byte[] containing the Well-known Binary representation.</param>
-        /// <returns>A <see cref="Geometry" /> bases on the supplied Well-known Binary representation.</returns>
-        public static Geometry Parse(byte[] bytes)
-        {
-            // Create a memory stream using the suppiled byte array.
-            using (var ms = new MemoryStream(bytes))
-            {
-                // Create a new binary reader using the newly created memorystream.
-                using (var reader = new BinaryReader(ms))
-                {
-                    // Call the main create function.
-                    return Parse(reader);
-                }
-            }
-        }
-
-        /// <summary>
         ///     Creates a <see cref="Geometry" /> based on the Well-known binary representation.
         /// </summary>
         /// <param name="reader">
@@ -55,7 +36,7 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
         ///     representation.
         /// </param>
         /// <returns>A <see cref="Geometry" /> based on the Well-known binary representation.</returns>
-        public static Geometry Parse(BinaryReader reader)
+        internal static Geometry Parse(BinaryReader reader)
         {
             // Get the first Byte in the array. This specifies if the WKB is in
             // XDR (big-endian) format of NDR (little-endian) format.

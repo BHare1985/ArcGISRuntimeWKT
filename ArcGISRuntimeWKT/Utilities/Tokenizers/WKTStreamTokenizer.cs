@@ -6,7 +6,7 @@ using System.IO;
 
 #endregion
 
-namespace ArcGISRuntimeWKT.Converters.WellKnownText
+namespace ArcGISRuntimeWKT
 {
     /// <summary>
     ///     Reads a stream of Well Known Text (wkt) string and returns a stream of tokens.

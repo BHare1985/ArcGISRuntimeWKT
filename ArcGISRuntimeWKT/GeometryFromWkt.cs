@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using ArcGISRuntimeWKT.Utilities;
 using Esri.ArcGISRuntime.Geometry;
 
-namespace ArcGISRuntimeWKT.Converters.WellKnownText
+namespace ArcGISRuntimeWKT
 {
     /// <summary>
     ///     Converts a Well-known Text representation to a <see cref="Geometry" /> instance.
@@ -50,42 +48,6 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
     /// </remarks>
     public class GeometryFromWkt
     {
-        /// <summary>
-        ///     Converts a Well-known text representation to a <see cref="Geometry" />.
-        /// </summary>
-        /// <param name="wellKnownText">
-        ///     A <see cref="Geometry" /> tagged text string ( see the OpenGIS Simple Features
-        ///     Specification.
-        /// </param>
-        /// <returns>
-        ///     Returns a <see cref="Geometry" /> specified by wellKnownText.  Throws an exception if there is a parsing
-        ///     problem.
-        /// </returns>
-        public static Geometry Parse(string wellKnownText)
-        {
-            // throws a parsing exception is there is a problem.
-            var reader = new StringReader(wellKnownText);
-            return Parse(reader);
-        }
-
-        /// <summary>
-        ///     Converts a Well-known Text representation to a <see cref="Geometry" />.
-        /// </summary>
-        /// <param name="reader">
-        ///     A Reader which will return a Geometry Tagged Text
-        ///     string (see the OpenGIS Simple Features Specification)
-        /// </param>
-        /// <returns>
-        ///     Returns a <see cref="Geometry" /> read from StreamReader.
-        ///     An exception will be thrown if there is a parsing problem.
-        /// </returns>
-        public static Geometry Parse(TextReader reader)
-        {
-            var tokenizer = new WktStreamTokenizer(reader);
-
-            return ReadGeometryTaggedText(tokenizer);
-        }
-
         /// <summary>
         ///     Returns the next array of Coordinates in the stream.
         /// </summary>
@@ -257,7 +219,7 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
         ///     shell and holes do not form closed linestrings, or if an unexpected
         ///     token is encountered.
         /// </remarks>
-        private static Geometry ReadGeometryTaggedText(WktStreamTokenizer tokenizer)
+        internal static Geometry ReadGeometryTaggedText(WktStreamTokenizer tokenizer)
         {
             tokenizer.NextToken();
             var type = tokenizer.GetStringValue().ToUpper();
@@ -270,8 +232,6 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
                 case "LINESTRING":
                     geometry = ReadLineStringText(tokenizer);
                     break;
-                case "MULTIPOINT":
-                    throw new NotImplementedException();
                 case "MULTILINESTRING":
                     geometry = ReadMultiLineStringText(tokenizer);
                     break;
@@ -281,13 +241,8 @@ namespace ArcGISRuntimeWKT.Converters.WellKnownText
                 case "MULTIPOLYGON":
                     geometry = ReadMultiPolygonText(tokenizer);
                     break;
-                //case "GEOMETRYCOLLECTION":
-                //   geometry = ReadGeometryCollectionText(tokenizer);
-                //   break;
                 default:
-                    throw new Exception(string.Format(CultureInfo.InvariantCulture,
-                        "Geometrytype '{0}' is not supported.",
-                        type));
+                    throw new NotImplementedException($"Geometrytype '{type}' is not supported.");
             }
             return geometry;
         }

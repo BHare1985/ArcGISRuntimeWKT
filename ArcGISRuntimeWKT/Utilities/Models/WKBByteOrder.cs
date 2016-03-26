@@ -1,4 +1,4 @@
-namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
+namespace ArcGISRuntimeWKT
 {
     /// <summary>
     ///     Specifies the specific binary encoding (NDR or XDR) used for a geometry byte stream
