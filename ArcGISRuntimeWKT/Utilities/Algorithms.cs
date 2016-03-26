@@ -18,13 +18,12 @@
 using System;
 using Esri.ArcGISRuntime.Geometry;
 
-namespace EsriSlWkt.Utilities
+namespace ArcGISRuntimeWKT.Utilities
 {
     public class Algorithms
     {
-
         /// <summary>
-        /// Gets the euclidean distance between two points.
+        ///     Gets the euclidean distance between two points.
         /// </summary>
         /// <param name="x1">The first point's X coordinate.</param>
         /// <param name="y1">The first point's Y coordinate.</param>
@@ -57,22 +56,22 @@ namespace EsriSlWkt.Utilities
 		 */
 
         /// <summary>
-        /// Tests whether a ring is oriented counter-clockwise.
+        ///     Tests whether a ring is oriented counter-clockwise.
         /// </summary>
         /// <param name="ring">Ring to test.</param>
         /// <returns>Returns true if ring is oriented counter-clockwise.</returns>
-        public static bool IsCCW(PointCollection ring)
+        public static bool IsCcw(PointCollection ring)
         {
             MapPoint PrevPoint, NextPoint;
-				MapPoint p;
+            MapPoint p;
 
             // Check if the ring has enough vertices to be a ring
             if (ring.Count < 3) throw (new ArgumentException("Invalid LinearRing"));
 
             // find the point with the largest Y coordinate
-				MapPoint hip = ring[0];
-            int hii = 0;
-            for (int i = 1; i < ring.Count; i++)
+            var hip = ring[0];
+            var hii = 0;
+            for (var i = 1; i < ring.Count; i++)
             {
                 p = ring[i];
                 if (p.Y > hip.Y)
@@ -82,10 +81,10 @@ namespace EsriSlWkt.Utilities
                 }
             }
             // Point left to Hip
-            int iPrev = hii - 1;
+            var iPrev = hii - 1;
             if (iPrev < 0) iPrev = ring.Count - 2;
             // Point right to Hip
-            int iNext = hii + 1;
+            var iNext = hii + 1;
             if (iNext >= ring.Count) iNext = 1;
             PrevPoint = ring[iPrev];
             NextPoint = ring[iNext];
@@ -94,13 +93,13 @@ namespace EsriSlWkt.Utilities
             // This will not affect the area calculation, and will avoid
             // finite-accuracy errors (i.e very small vectors with very large coordinates)
             // This also simplifies the discriminant calculation.
-            double prev2X = PrevPoint.X - hip.X;
-            double prev2Y = PrevPoint.Y - hip.Y;
-            double next2X = NextPoint.X - hip.X;
-            double next2Y = NextPoint.Y - hip.Y;
+            var prev2X = PrevPoint.X - hip.X;
+            var prev2Y = PrevPoint.Y - hip.Y;
+            var next2X = NextPoint.X - hip.X;
+            var next2Y = NextPoint.Y - hip.Y;
             // compute cross-product of vectors hip->next and hip->prev
             // (e.g. area of parallelogram they enclose)
-            double disc = next2X*prev2Y - next2Y*prev2X;
+            var disc = next2X*prev2Y - next2Y*prev2X;
             // If disc is exactly 0, lines are collinear.  There are two possible cases:
             //	(1) the lines lie along the x axis in opposite directions
             //	(2) the line lie on top of one another

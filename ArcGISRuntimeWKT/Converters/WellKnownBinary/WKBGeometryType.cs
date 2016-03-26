@@ -38,16 +38,16 @@
 namespace ArcGISRuntimeWKT.Converters.WellKnownBinary
 {
     /// <summary>
-    /// Enumeration to determine geometrytype in Well-known Binary
+    ///     Enumeration to determine geometrytype in Well-known Binary
     /// </summary>
-    internal enum WKBGeometryType : uint
+    internal enum WkbGeometryType : uint
     {
-        wkbPoint = 1,
-        wkbLineString = 2,
-        wkbPolygon = 3,
-        wkbMultiPoint = 4,
-        wkbMultiLineString = 5,
-        wkbMultiPolygon = 6,
-        wkbGeometryCollection = 7
+        WkbPoint = 1,
+        WkbLineString = 2,
+        WkbPolygon = 3,
+        WkbMultiPoint = 4,
+        WkbMultiLineString = 5,
+        WkbMultiPolygon = 6,
+        WkbGeometryCollection = 7
     }
 }

@@ -1,20 +1,9 @@
 ﻿using System;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using ArcGISRuntimeWKT.Converters.WellKnownText;
-using ArcGISRuntimeWKT.Converters.WellKnownBinary;
-using EsriSlWkt.Utilities;
-using ArcGISRuntimeWKT.Converters;
-using Esri.ArcGISRuntime.Geometry;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using Esri.ArcGISRuntime.Geometry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace UnitTestsSL
+namespace ArcGISRuntimeWKTTests
 {
     public class PolygonComparer
     {
@@ -28,17 +17,17 @@ namespace UnitTestsSL
 
         public static int Compare(Polygon poly1, Polygon poly2)
         {
-            bool isTheSame = poly1.Equals(poly2);
-            List<double> poly1X = new List<double>();
-            List<double> poly1Y = new List<double>();
-            List<double> poly2X = new List<double>();
-            List<double> poly2Y = new List<double>();
+            var isTheSame = poly1.Equals(poly2);
+            var poly1X = new List<double>();
+            var poly1Y = new List<double>();
+            var poly2X = new List<double>();
+            var poly2Y = new List<double>();
             isTheSame = poly1.Equals(poly2);
-            for (int i = 0; i < poly1.Rings.Count; i++)
+            for (var i = 0; i < poly1.Rings.Count; i++)
             {
                 PointCollection pt1 = poly1.Rings[i];
                 PointCollection pt2 = poly2.Rings[i];
-                for (int j = 0; j < pt1.Count; j++)
+                for (var j = 0; j < pt1.Count; j++)
                 {
                     PopulatePointLists(poly1X, poly1Y, poly2X, poly2Y, pt1, pt2, j);
                 }
@@ -49,14 +38,14 @@ namespace UnitTestsSL
 
         public static int Compare(MultiPoint mp1, MultiPoint mp2)
         {
-            List<double> poly1X = new List<double>();
-            List<double> poly1Y = new List<double>();
-            List<double> poly2X = new List<double>();
-            List<double> poly2Y = new List<double>();
+            var poly1X = new List<double>();
+            var poly1Y = new List<double>();
+            var poly2X = new List<double>();
+            var poly2Y = new List<double>();
 
             PointCollection pt1 = mp1.Points;
             PointCollection pt2 = mp2.Points;
-            for (int j = 0; j < pt1.Count; j++)
+            for (var j = 0; j < pt1.Count; j++)
             {
                 PopulatePointLists(poly1X, poly1Y, poly2X, poly2Y, pt1, pt2, j);
             }
@@ -66,16 +55,16 @@ namespace UnitTestsSL
 
         public static int Compare(Polyline poly1, Polyline poly2)
         {
-            List<double> poly1X = new List<double>();
-            List<double> poly1Y = new List<double>();
-            List<double> poly2X = new List<double>();
-            List<double> poly2Y = new List<double>();
+            var poly1X = new List<double>();
+            var poly1Y = new List<double>();
+            var poly2X = new List<double>();
+            var poly2Y = new List<double>();
 
-            for (int i = 0; i < poly1.Paths.Count; i++)
+            for (var i = 0; i < poly1.Paths.Count; i++)
             {
                 PointCollection pt1 = poly1.Paths[i];
                 PointCollection pt2 = poly2.Paths[i];
-                for (int j = 0; j < pt1.Count; j++)
+                for (var j = 0; j < pt1.Count; j++)
                 {
                     PopulatePointLists(poly1X, poly1Y, poly2X, poly2Y, pt1, pt2, j);
                 }
@@ -86,9 +75,9 @@ namespace UnitTestsSL
 
         public static int Compare(Geometry geom1, Geometry geom2)
         {
-            if(geom1.SpatialReference != null && geom2.SpatialReference != null)
+            if (geom1.SpatialReference != null && geom2.SpatialReference != null)
             {
-                if(geom1.SpatialReference.WKID != null && geom2.SpatialReference.WKID != null)
+                if (geom1.SpatialReference.WKID != null && geom2.SpatialReference.WKID != null)
                     Assert.AreEqual(geom1.SpatialReference.WKID, geom2.SpatialReference.WKID);
                 if (geom1.SpatialReference.WKT != null && geom2.SpatialReference.WKT != null)
                     Assert.AreEqual(geom1.SpatialReference.WKT, geom2.SpatialReference.WKT);
@@ -103,7 +92,7 @@ namespace UnitTestsSL
                 Assert.AreEqual(geom1.Extent.YMax, geom2.Extent.YMax);
                 Assert.AreEqual(geom1.Extent.YMin, geom2.Extent.YMin);
             }
-            
+
             return 0;
         }
 
@@ -114,31 +103,28 @@ namespace UnitTestsSL
                 Assert.AreEqual(wkt1, wkt2);
                 return true;
             }
-            else
-            {
-                // check to see if the MULTI* sign is present and if it even matters.
-                // sometimes the input is listed as a multipolygon but it really is just a polygon
-                bool wkt1Multi = wkt1.StartsWith("MULTI", StringComparison.CurrentCultureIgnoreCase);
-                bool wkt2Multi = wkt2.StartsWith("MULTI", StringComparison.CurrentCultureIgnoreCase);
-                if (wkt1Multi && !wkt2Multi)
-                    wkt1 = wkt1.Substring(5);
-                else if (!wkt1Multi && wkt2Multi)
-                    wkt2 = wkt2.Substring(5);
+            // check to see if the MULTI* sign is present and if it even matters.
+            // sometimes the input is listed as a multipolygon but it really is just a polygon
+            var wkt1Multi = wkt1.StartsWith("MULTI", StringComparison.CurrentCultureIgnoreCase);
+            var wkt2Multi = wkt2.StartsWith("MULTI", StringComparison.CurrentCultureIgnoreCase);
+            if (wkt1Multi && !wkt2Multi)
+                wkt1 = wkt1.Substring(5);
+            else if (!wkt1Multi && wkt2Multi)
+                wkt2 = wkt2.Substring(5);
 
-                // do some more cleaning on the wkt's
-                wkt1 = wkt1.Replace(" (", "(");
-                wkt1 = wkt1.Replace(", ", ",");
-                wkt2 = wkt2.Replace(" (", "(");
-                wkt2 = wkt2.Replace(", ", ",");
+            // do some more cleaning on the wkt's
+            wkt1 = wkt1.Replace(" (", "(");
+            wkt1 = wkt1.Replace(", ", ",");
+            wkt2 = wkt2.Replace(" (", "(");
+            wkt2 = wkt2.Replace(", ", ",");
 
-                string[] array = RemoveRedundantParens(wkt1, wkt2);
-                wkt1 = array[0];
-                wkt2 = array[1];
+            var array = RemoveRedundantParens(wkt1, wkt2);
+            wkt1 = array[0];
+            wkt2 = array[1];
 
-                bool same = wkt1.Equals(wkt2, StringComparison.CurrentCultureIgnoreCase);
-                Assert.IsTrue(same);
-                return same;
-            }
+            var same = wkt1.Equals(wkt2, StringComparison.CurrentCultureIgnoreCase);
+            Assert.IsTrue(same);
+            return same;
         }
 
         #region Helper Methods
@@ -151,11 +137,11 @@ namespace UnitTestsSL
             // outer pair for an equivalent set.
 
             if (wkt1.Length == wkt2.Length)
-                return new string[] { wkt1, wkt2 };
+                return new[] {wkt1, wkt2};
 
-            List<char> parens1 = GetParenCharListFromWkt(wkt1);
-            List<char> parens2 = GetParenCharListFromWkt(wkt2);
-            bool wkt1Larger = false;
+            var parens1 = GetParenCharListFromWkt(wkt1);
+            var parens2 = GetParenCharListFromWkt(wkt2);
+            var wkt1Larger = false;
 
             if (parens1.Count > parens2.Count)
             {
@@ -173,7 +159,7 @@ namespace UnitTestsSL
             }
 
             // now compare the inner char array of the large list against the small list
-            bool same = CompareCharLists(parens1, parens2);
+            var same = CompareCharLists(parens1, parens2);
             // remove the first open paren and last close paren:
             if (wkt1Larger)
             {
@@ -185,15 +171,15 @@ namespace UnitTestsSL
                 wkt2 = wkt2.Remove(wkt2.IndexOf('('), 1);
                 wkt2 = wkt2.Remove(wkt2.LastIndexOf(')'), 1);
             }
-            return new string[] { wkt1, wkt2 };
+            return new[] {wkt1, wkt2};
         }
 
         private static bool CompareCharLists(List<char> parens1, List<char> parens2)
         {
-            bool same = true;
+            var same = true;
             if (parens1.Count == parens2.Count)
             {
-                for (int i = 0; i < parens1.Count; i++)
+                for (var i = 0; i < parens1.Count; i++)
                 {
                     if (parens1[i] != parens2[i])
                     {
@@ -209,10 +195,10 @@ namespace UnitTestsSL
 
         private static List<char> GetParenCharListFromWkt(string wkt)
         {
-            char[] wktChars = wkt.ToCharArray();
-            List<char> parens = new List<char>();
-            int i = 0;
-            foreach (char c in wktChars)
+            var wktChars = wkt.ToCharArray();
+            var parens = new List<char>();
+            var i = 0;
+            foreach (var c in wktChars)
             {
                 if (c == '(' || c == ')')
                     parens.Add(c);
@@ -221,10 +207,11 @@ namespace UnitTestsSL
             return parens;
         }
 
-        private static void PopulatePointLists(List<double> poly1X, List<double> poly1Y, List<double> poly2X, List<double> poly2Y, PointCollection pt1, PointCollection pt2, int j)
+        private static void PopulatePointLists(List<double> poly1X, List<double> poly1Y, List<double> poly2X,
+            List<double> poly2Y, PointCollection pt1, PointCollection pt2, int j)
         {
-            MapPoint mp1 = pt1[j];
-            MapPoint mp2 = pt2[j];
+            var mp1 = pt1[j];
+            var mp2 = pt2[j];
 
             poly1X.Add(mp1.X);
             poly1Y.Add(mp1.Y);
@@ -232,7 +219,8 @@ namespace UnitTestsSL
             poly2Y.Add(mp2.Y);
         }
 
-        private static int ComparePointLists(List<double> poly1X, List<double> poly1Y, List<double> poly2X, List<double> poly2Y)
+        private static int ComparePointLists(List<double> poly1X, List<double> poly1Y, List<double> poly2X,
+            List<double> poly2Y)
         {
             poly1X.Sort();
             poly1Y.Sort();
@@ -242,7 +230,7 @@ namespace UnitTestsSL
             if (poly1X.Count != poly2X.Count || poly1Y.Count != poly2Y.Count)
                 return 1;
 
-            for (int k = 0; k < poly1X.Count; k++)
+            for (var k = 0; k < poly1X.Count; k++)
             {
                 Assert.AreEqual(poly1X[k], poly2X[k]);
                 Assert.AreEqual(poly1Y[k], poly2Y[k]);
