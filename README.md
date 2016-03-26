@@ -20,7 +20,7 @@ Console.Write(geometry.GetType()); //Esri.ArcGISRuntime.Geometry.Polyline
 
 var point = new MapPoint(30, 20);
 string wkt = Parser.GeometryToWkt(point);
-Console.Write(wkt); //POINT(30, 20)
+Console.Write(wkt); //POINT(30 20)
 ```
 #### Creating a geometry
 - [GeometryFromWkb(Byte[])](#M-ArcGISRuntimeWKT-Parser-GeometryFromWkb-System-Byte[]- 'Go To Here')
