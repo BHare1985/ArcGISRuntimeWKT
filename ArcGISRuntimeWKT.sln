@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcGISRuntimeWKT", "ArcGISRuntimeWKT\ArcGISRuntimeWKT.csproj", "{ABA738F9-FA30-4CAB-BF17-8D1183873B4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcGISRuntimeWKTTests", "ArcGISRuntimeWKTTests\ArcGISRuntimeWKTTests.csproj", "{CBEBD782-65B3-4B10-8110-B586CE2EC6D0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ABA738F9-FA30-4CAB-BF17-8D1183873B4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABA738F9-FA30-4CAB-BF17-8D1183873B4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABA738F9-FA30-4CAB-BF17-8D1183873B4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABA738F9-FA30-4CAB-BF17-8D1183873B4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBEBD782-65B3-4B10-8110-B586CE2EC6D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBEBD782-65B3-4B10-8110-B586CE2EC6D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBEBD782-65B3-4B10-8110-B586CE2EC6D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBEBD782-65B3-4B10-8110-B586CE2EC6D0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
