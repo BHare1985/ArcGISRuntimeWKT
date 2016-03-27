@@ -1,12 +1,15 @@
 # ArcGISRuntimeWKT
 
-This is a unit-tested C# library that can convert [Well Known Text (WKT)](https://en.wikipedia.org/wiki/Well-known_text) / [Well Known Binary (WKB)](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary) to and from [ESRI's ArcGIS Runtime Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm).
+This is a unit-tested [NuGet](https://www.nuget.org/packages/ArcGISRuntimeWKT/) C# library that can convert [Well Known Text (WKT)](https://en.wikipedia.org/wiki/Well-known_text) / [Well Known Binary (WKB)](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary) to and from [ESRI's ArcGIS Runtime Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm).
 
-The motivation for this library is a no-dependency and small footprint WKT/WKB parser. It has some [limited-functionality](NotSupported) but is a alternative to more robust but bloated libraries such as [SharpMap](https://sharpmap.codeplex.com/)
+The motivation for this library is a no-dependency and small footprint WKT/WKB parser for Runtime Geometry. It has some [limited-functionality](NotSupported) but serves as a viable alternative to (albeit more robust but bloated) libraries such as [SharpMap](https://sharpmap.codeplex.com/)
 
-This library is to be used in conjection with NuGet package `Esri.ArcGISRuntime` for .NET
+This library is to be used in conjection with NuGet package [Esri.ArcGISRuntime](https://www.nuget.org/packages/Esri.ArcGISRuntime/) for .NET
 
-
+## Install
+Install NuGet package https://www.nuget.org/packages/ArcGISRuntimeWKT/ (note: it is pre-release)
+ 
+or via Package Manager Console: `Install-Package ArcGISRuntimeWKT -Pre`
 
 
 ## Usage
