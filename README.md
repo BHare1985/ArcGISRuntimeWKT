@@ -2,7 +2,7 @@
 
 This is a unit-tested [NuGet](https://www.nuget.org/packages/ArcGISRuntimeWKT/) C# library that can convert [Well Known Text (WKT)](https://en.wikipedia.org/wiki/Well-known_text) / [Well Known Binary (WKB)](https://en.wikipedia.org/wiki/Well-known_text#Well-known_binary) to and from [ESRI's ArcGIS Runtime Geometry](https://developers.arcgis.com/net/store/api-reference/html/N_Esri_ArcGISRuntime_Geometry.htm).
 
-The motivation for this library is a no-dependency and small footprint WKT/WKB parser for Runtime Geometry. It has some [limited-functionality](NotSupported) but serves as a viable alternative to (albeit more robust but bloated) libraries such as [SharpMap](https://sharpmap.codeplex.com/)
+The motivation for this library is a no-dependency and small footprint WKT/WKB parser for Runtime Geometry. It has some [limited-functionality](#NotSupported) but serves as a viable alternative to (albeit more robust but bloated) libraries such as [SharpMap](https://sharpmap.codeplex.com/)
 
 This library is to be used in conjection with NuGet package [Esri.ArcGISRuntime](https://www.nuget.org/packages/Esri.ArcGISRuntime/) for .NET
 
@@ -46,7 +46,8 @@ The following WKT and WKB are not supported at this time:
 MultiPoint, GeometryCollection, CircularString, CompoundCurve, CurvePolygon, MultiCurve, MultiSurface, Curve, Surface, PolyhedralSurface, TIN, Triangle, 
 
 ## Test Enviorment
-Created/Testest on Visual Studio 2015, with ArcGISRuntime version 10.2.7.1234.
+Created on  Windows 10, Visual Studio 2015, with ArcGISRuntime version 10.2.7.1234 and .NET framework 4.5.2.
+Additionally tested on Windows 7 and  ArcGISRuntime version 10.2.4+ and .NET framework 4.5
 
 ---
 
