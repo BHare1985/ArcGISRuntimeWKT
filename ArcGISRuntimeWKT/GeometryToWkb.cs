@@ -133,7 +133,7 @@ namespace ArcGISRuntimeWKT
                     break;
                 case "SharpMap.Geometries.LineString":
                     var ls = (Polyline) geometry;
-                    WriteLineString(ls.Parts[0].GetPoints(), bWriter, byteorder);
+                    WriteLineString(ls.Parts[0].Points, bWriter, byteorder);
                     break;
                 case "SharpMap.Geometries.Polygon":
                     WriteMultiPolygon((Polygon) geometry, bWriter, byteorder);
@@ -167,10 +167,12 @@ namespace ArcGISRuntimeWKT
         /// <param name="byteorder">Byte order</param>
         private static void WritePoint(MapPoint point, BinaryWriter bWriter, WkbByteOrder byteorder)
         {
-            //Write the x coordinate.
-            WriteDouble(point.X, bWriter, byteorder);
-            //Write the y coordinate.
-            WriteDouble(point.Y, bWriter, byteorder);
+           WriteDouble(point.X, bWriter, byteorder);
+           WriteDouble(point.Y, bWriter, byteorder);
+
+           if(point.HasCurves || point.HasZ || point.HasM) {
+                throw new NotImplementedException();
+            }
         }
 
 
@@ -211,29 +213,27 @@ namespace ArcGISRuntimeWKT
             foreach (var pc in poly.Parts)
             {
                 //Write the (lineString)LinearRing.
-                WriteLineString(pc.GetPoints(), bWriter, byteorder);
+                WriteLineString(pc.Points, bWriter, byteorder);
             }
         }
 
         /// <summary>
-        ///     Writes a multilinestring.
+        ///     Writes a multilinestring according to WKB specification.
         /// </summary>
-        /// <param name="mls">The multilinestring to be written.</param>
+        /// <param name="mls">The Polyline geometry representing the multilinestring.</param>
         /// <param name="bWriter">Stream to write to.</param>
         /// <param name="byteorder">Byte order</param>
         private static void WriteMultiLineString(Polyline mls, BinaryWriter bWriter, WkbByteOrder byteorder)
         {
-            //Write the number of linestrings.
-            WriteUInt32((uint) mls.Parts.Count, bWriter, byteorder);
+            WriteUInt32((uint)mls.Parts.Count, bWriter, byteorder);
 
-            //Loop on the number of linestrings.
-            foreach (var ls in mls.Parts.GetPartsAsPoints())
+            foreach (ReadOnlyPart part in mls.Parts) 
             {
                 //Write LineString Header
-                bWriter.Write((byte) byteorder);
-                WriteUInt32((uint) WkbGeometryType.WkbLineString, bWriter, byteorder);
+                bWriter.Write((byte)byteorder);
+                WriteUInt32((uint)WkbGeometryType.WkbLineString, bWriter, byteorder);
                 //Write each linestring.
-                WriteLineString(ls, bWriter, byteorder);
+                WriteLineString(part.Points, bWriter, byteorder);
             }
         }
 

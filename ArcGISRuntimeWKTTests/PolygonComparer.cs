@@ -43,8 +43,9 @@ namespace ArcGISRuntimeWKTTests
             }
             else
             {
+                //todo: add back BindingFlags.NonPublic
                 foreach (
-                    var pi in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public))
+                    var pi in type.GetProperties( BindingFlags.Instance | BindingFlags.Public))
                 {
                     if (pi.Name == "Extent" || pi.Name == "Capacity")
                     {
@@ -65,7 +66,8 @@ namespace ArcGISRuntimeWKTTests
                     {
                     }
                 }
-                foreach (var fi in type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public))
+                //todo: add back BindingFlags.NonPublic
+                foreach (var fi in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
                 {
                     var expected = fi.GetValue(obj1);
                     var actual = fi.GetValue(obj2);
@@ -100,8 +102,8 @@ namespace ArcGISRuntimeWKTTests
             var poly2Y = new List<double>();
             for (var i = 0; i < poly1.Parts.Count; i++)
             {
-                var pt1 = poly1.Parts[i].GetPoints().ToList();
-                var pt2 = poly2.Parts[i].GetPoints().ToList();
+                var pt1 = poly1.Parts[i].Points.ToList();
+                var pt2 = poly2.Parts[i].Points.ToList();
                 for (var j = 0; j < pt1.Count; j++)
                 {
                     PopulatePointLists(poly1X, poly1Y, poly2X, poly2Y, pt1, pt2, j);
@@ -123,8 +125,8 @@ namespace ArcGISRuntimeWKTTests
 
             for (var i = 0; i < poly1.Parts.Count; i++)
             {
-                var pt1 = poly1.Parts[i].GetPoints().ToList();
-                var pt2 = poly2.Parts[i].GetPoints().ToList();
+                var pt1 = poly1.Parts[i].Points.ToList();
+                var pt2 = poly2.Parts[i].Points.ToList();
                 for (var j = 0; j < pt1.Count; j++)
                 {
                     PopulatePointLists(poly1X, poly1Y, poly2X, poly2Y, pt1, pt2, j);

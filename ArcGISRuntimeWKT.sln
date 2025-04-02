@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcGISRuntimeWKT", "ArcGISRuntimeWKT\ArcGISRuntimeWKT.csproj", "{ABA738F9-FA30-4CAB-BF17-8D1183873B4A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcGISRuntimeWKT", "ArcGISRuntimeWKT\ArcGISRuntimeWKT.csproj", "{ABA738F9-FA30-4CAB-BF17-8D1183873B4A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcGISRuntimeWKTTests", "ArcGISRuntimeWKTTests\ArcGISRuntimeWKTTests.csproj", "{CBEBD782-65B3-4B10-8110-B586CE2EC6D0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{29D86C00-4199-422D-876F-3F9852D89010}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

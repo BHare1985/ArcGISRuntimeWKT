@@ -7,9 +7,19 @@ namespace ArcGISRuntimeWKT.Utilities
 {
     public class Algorithms
     {
-        public static bool IsCcw(ReadOnlySegmentCollection ring)
+        public static bool IsCcw(Polygon polygon)
         {
-            return IsCcw(ring.GetPoints().ToList());
+            if (polygon == null || polygon.IsEmpty || polygon.Parts.Count == 0)
+            {
+                return false;
+            }
+
+            return IsCcw(polygon.Parts[0]);
+        }
+
+        public static bool IsCcw(ReadOnlyPart exteriorRing)
+        {
+            return IsCcw(exteriorRing.Points.ToList());
         }
 
         public static bool IsCcw(IEnumerable<MapPoint> ring)

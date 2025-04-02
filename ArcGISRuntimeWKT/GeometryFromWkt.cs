@@ -242,7 +242,7 @@ namespace ArcGISRuntimeWKT
                     geometry = ReadMultiPolygonText(tokenizer);
                     break;
                 default:
-                    throw new NotImplementedException($"Geometrytype '{type}' is not supported.");
+                    throw new NotSupportedException($"Geometrytype '{type}' is not supported.");
             }
             return geometry;
         }

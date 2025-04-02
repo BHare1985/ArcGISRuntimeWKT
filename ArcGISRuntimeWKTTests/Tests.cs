@@ -8,8 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace ArcGISRuntimeWKTTests
 {
     [TestClass]
-    [Category("BuildIgnore")]
-    public class Tests : EsriBaseTest
+    public class Tests
     {
         [TestMethod]
         public void LineFromWkt()
