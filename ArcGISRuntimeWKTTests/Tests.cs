@@ -61,11 +61,12 @@ namespace ArcGISRuntimeWKTTests
             var mp2 = new MapPoint(10, 40);
             var mp3 = new MapPoint(45, 40);
             var pc = new PointCollection(new List<MapPoint> {mp1, mp2, mp3, mp1});
+
             var mp6 = new MapPoint(15, 5);
             var mp7 = new MapPoint(40, 10);
             var mp8 = new MapPoint(10, 20);
             var mp9 = new MapPoint(5, 10);
-            //var pc2 = new PointCollection(new List<MapPoint> { mp6, mp7, mp8, mp9, mp6 });
+
             var pc2 = new PointCollection(new List<MapPoint> {mp6, mp9, mp8, mp7, mp6});
 
             var oc = new ObservableCollection<PointCollection>(new List<PointCollection> {pc, pc2});
@@ -92,18 +93,15 @@ namespace ArcGISRuntimeWKTTests
             var mp8 = new MapPoint(30, 5);
             var mp9 = new MapPoint(10, 10);
             var mp10 = new MapPoint(10, 30);
-            //var pc2 = new PointCollection(new List<MapPoint> {mp6, mp7, mp8, mp9, mp10, mp6});
             var pc2 = new PointCollection(new List<MapPoint> {mp6, mp10, mp9, mp8, mp7, mp6});
 
             //(30 20, 20 25, 20 15, 30 20)
             var mp11 = new MapPoint(30, 20);
             var mp12 = new MapPoint(20, 25);
             var mp13 = new MapPoint(20, 15);
-            //var pc3 = new PointCollection(new List<MapPoint> {mp11, mp12, mp13, mp11});
             var pc3 = new PointCollection(new List<MapPoint> {mp11, mp13, mp12, mp11});
 
             var oc = new ObservableCollection<PointCollection>(new List<PointCollection> {pc1, pc2, pc3});
-
 
             PolygonComparer.Compare(new Polygon(oc), actual);
         }
@@ -123,17 +121,16 @@ namespace ArcGISRuntimeWKTTests
         {
             const string wktPoly =
                 "POLYGON((15.29296875 23.203125, 25.13671875 22.67578125, 19.51171875 16.34765625, 15.29296875 23.203125))";
-            var actual = Parser.GeometryFromWkt(wktPoly) as Polygon;
-            var mp1 = new MapPoint(15.29296875, 23.203125);
+
+            var actual = Parser.GeometryFromWkt(wktPoly) as Polygon; 
+
+            var mp1 = new MapPoint(15.29296875, 23.203125); 
             var mp2 = new MapPoint(25.13671875, 22.67578125);
             var mp3 = new MapPoint(19.51171875, 16.34765625);
-            var mp4 = new MapPoint(15.29296875, 23.203125);
-            var mp5 = new MapPoint(15.29296875, 23.203125);
-            var pc = new PointCollection(new List<MapPoint> {mp1, mp2, mp3, mp4, mp5});
-            var oc = new ObservableCollection<PointCollection>(new List<PointCollection> {pc});
+            var mp4 = new MapPoint(15.29296875, 23.203125); // mp4 is the closing point, same as mp1
 
-            var expected = new Polygon(oc);
-            PolygonComparer.Compare(expected, actual);
+            var expected = new Polygon(new List<MapPoint> { mp1, mp2, mp3, mp4 });
+            PolygonComparer.Compare(expected, actual); 
         }
 
         [TestMethod]
@@ -148,13 +145,14 @@ namespace ArcGISRuntimeWKTTests
             var mp3 = new MapPoint(20.390625, -2.109375);
             var mp4 = new MapPoint(-6.6796875, 8.4375);
             var mp5 = new MapPoint(3.8671875, 30.5859375);
+            
             var pc1 = new PointCollection(new List<MapPoint> {mp1, mp2, mp3, mp4, mp5});
 
             var mp6 = new MapPoint(15.29296875, 23.203125);
             var mp7 = new MapPoint(25.13671875, 22.67578125);
             var mp8 = new MapPoint(19.51171875, 16.34765625);
             var mp9 = new MapPoint(15.29296875, 23.203125);
-            //var pc2 = new PointCollection(new List<MapPoint> { mp6, mp7, mp8, mp9 });
+
             var pc2 = new PointCollection(new List<MapPoint> {mp9, mp8, mp7, mp6});
 
             var oc = new ObservableCollection<PointCollection>(new List<PointCollection> {pc1, pc2});
