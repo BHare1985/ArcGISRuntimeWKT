@@ -15,7 +15,6 @@ namespace ArcGISRuntimeWKTTests
         {
             const string wktLine =
                 "LINESTRING(19.51171875 -3.515625, 17.05078125 10.37109375, 15.64453125 -8.26171875, 19.51171875 -16.171875)";
-            var actual = Parser.GeometryFromWkt(wktLine) as Polyline;
 
             var mp1 = new MapPoint(19.51171875, -3.515625);
             var mp2 = new MapPoint(17.05078125, 10.37109375);
@@ -24,14 +23,15 @@ namespace ArcGISRuntimeWKTTests
             var pc = new PointCollection(new List<MapPoint> {mp1, mp2, mp3, mp4});
             var oc = new ObservableCollection<PointCollection> {pc};
 
-            PolygonComparer.Compare(new Polyline(oc), actual);
+            var expected = new Polygon(oc);
+            var actual = Parser.GeometryFromWkt(wktLine) as Polyline;
+            PolygonComparer.Compare(expected, actual);
         }
 
         [TestMethod]
         public void MultiLineFromWkt()
         {
             const string wktMultiLineString = "MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))";
-            var actual = Parser.GeometryFromWkt(wktMultiLineString) as Polyline;
 
             var mp1 = new MapPoint(10, 10);
             var mp2 = new MapPoint(20, 20);
@@ -46,8 +46,9 @@ namespace ArcGISRuntimeWKTTests
 
             var oc = new ObservableCollection<PointCollection> {pc, pc2};
 
-
-            PolygonComparer.Compare(new Polyline(oc), actual);
+            var expected = new Polygon(oc);
+            var actual = Parser.GeometryFromWkt(wktMultiLineString) as Polyline;
+            PolygonComparer.Compare(expected, actual);
         }
 
         [TestMethod]
@@ -55,7 +56,6 @@ namespace ArcGISRuntimeWKTTests
         {
             const string wktMultiPoly =
                 "MULTIPOLYGON (((30 20, 10 40, 45 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))";
-            var actual = Parser.GeometryFromWkt(wktMultiPoly) as Polygon;
 
             var mp1 = new MapPoint(30, 20);
             var mp2 = new MapPoint(10, 40);
@@ -71,7 +71,9 @@ namespace ArcGISRuntimeWKTTests
 
             var oc = new ObservableCollection<PointCollection>(new List<PointCollection> {pc, pc2});
 
-            PolygonComparer.Compare(new Polygon(oc), actual);
+            var expected = new Polygon(oc);
+            var actual = Parser.GeometryFromWkt(wktMultiPoly) as Polygon;
+            PolygonComparer.Compare(expected, actual);
         }
 
         [TestMethod]
@@ -79,7 +81,6 @@ namespace ArcGISRuntimeWKTTests
         {
             const string wktMultiPolyWithHole =
                 "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 45 20, 30 5, 10 10, 10 30, 20 35),(30 20, 20 25, 20 15, 30 20)))";
-            var actual = Parser.GeometryFromWkt(wktMultiPolyWithHole) as Polygon;
 
             //(40 40, 20 45, 45 30, 40 40)
             var mp1 = new MapPoint(40, 40);
@@ -99,21 +100,23 @@ namespace ArcGISRuntimeWKTTests
             var mp11 = new MapPoint(30, 20);
             var mp12 = new MapPoint(20, 25);
             var mp13 = new MapPoint(20, 15);
-            var pc3 = new PointCollection(new List<MapPoint> {mp11, mp13, mp12, mp11});
+            var pc3 = new PointCollection(new List<MapPoint> { mp11, mp13, mp12, mp11 });
 
             var oc = new ObservableCollection<PointCollection>(new List<PointCollection> {pc1, pc2, pc3});
 
-            PolygonComparer.Compare(new Polygon(oc), actual);
+            var expected = new Polygon(oc);
+            var actual = Parser.GeometryFromWkt(wktMultiPolyWithHole) as Polygon;
+            PolygonComparer.Compare(expected, actual);
         }
 
         [TestMethod]
         public void PointFromWkt()
         {
             const string wktPoint = "POINT(25.48828125 -1.93359375)";
-            var actual = Parser.GeometryFromWkt(wktPoint) as MapPoint;
-            var expected = new MapPoint(25.48828125, -1.93359375);
 
-            PolygonComparer.Compare(expected, actual);
+            var expected = new MapPoint(25.48828125, -1.93359375);
+            var actual = Parser.GeometryFromWkt(wktPoint) as MapPoint;
+            PolygonComparer.Compare(expected, actual); 
         }
 
         [TestMethod]
@@ -122,14 +125,13 @@ namespace ArcGISRuntimeWKTTests
             const string wktPoly =
                 "POLYGON((15.29296875 23.203125, 25.13671875 22.67578125, 19.51171875 16.34765625, 15.29296875 23.203125))";
 
-            var actual = Parser.GeometryFromWkt(wktPoly) as Polygon; 
-
             var mp1 = new MapPoint(15.29296875, 23.203125); 
             var mp2 = new MapPoint(25.13671875, 22.67578125);
             var mp3 = new MapPoint(19.51171875, 16.34765625);
             var mp4 = new MapPoint(15.29296875, 23.203125); // mp4 is the closing point, same as mp1
 
             var expected = new Polygon(new List<MapPoint> { mp1, mp2, mp3, mp4 });
+            var actual = Parser.GeometryFromWkt(wktPoly) as Polygon;
             PolygonComparer.Compare(expected, actual); 
         }
 
@@ -156,8 +158,8 @@ namespace ArcGISRuntimeWKTTests
             var pc2 = new PointCollection(new List<MapPoint> {mp9, mp8, mp7, mp6});
 
             var oc = new ObservableCollection<PointCollection>(new List<PointCollection> {pc1, pc2});
-
-            PolygonComparer.Compare(new Polygon(oc), actual);
+            var expected = new Polygon(oc);
+            PolygonComparer.Compare(expected, actual);
         }
     }
 }
